@@ -47,6 +47,35 @@ Status: **IN PROGRESS — Praneet is simplifying the schema iteratively.**
 - [x] Document the frontend auth service functions in `docs/SERVICES.md`.
 - [ ] Test RLS with the seeded development account.
 
+## Application screens
+
+Owner: Armaan
+
+Status: **IN PROGRESS — claiming all ten remaining wireframe screens.**
+
+Screens 1 and 2 (login, registration) are Praneet's and are not listed here.
+Decisions locked with Armaan before implementation:
+
+- App shell is a floating glass dock, dark canvas and translucent panels on every screen.
+- Charts are hand-rolled inline SVG on a violet-to-neutral sequential ramp. No chart dependency.
+- The itinerary builder reorders with buttons, not drag and drop.
+- City and activity search share one `/explore` route with tabs.
+- Placeholder data lives in `frontend/src/fixtures/`, shaped to documented `docs/SCHEMA.md` columns.
+
+- [ ] Extract routing into `router.tsx` with a shared `ProtectedRoute`.
+- [ ] Build the app shell and the fixture set.
+- [ ] Screen 3 — `/dashboard`, replacing the auth placeholder.
+- [ ] Screen 4 — `/trips/new`, create a trip.
+- [ ] Screen 5 — `/trips/:tripId/build`, itinerary builder.
+- [ ] Screen 6 — `/trips`, trip listing grouped by ongoing, upcoming, and completed.
+- [ ] Screen 7 — `/profile`.
+- [ ] Screen 8 — `/explore`, cities and activities.
+- [ ] Screen 9 — `/trips/:tripId`, itinerary view with the budget breakdown.
+- [ ] Screen 10 — `/community`.
+- [ ] Screen 11 — `/calendar`.
+- [ ] Screen 12 — `/admin`.
+- [ ] Verify lint, production build, mobile, keyboard, and reduced motion.
+
 ## Integration gate
 
 Owner: Armaan
