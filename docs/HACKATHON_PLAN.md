@@ -178,6 +178,22 @@ hackathon plan in the same work cycle. Do not leave process knowledge in chat or
 memory. This document is the shared operating manual and should become more
 accurate after every build.
 
+Lessons from the screen build:
+
+- **A one-accent design system cannot carry a categorical palette.** Budget
+  categories needed five distinguishable series; the palette allows one violet
+  and otherwise achromatic, and greys fail a chroma floor. The fix is to treat it
+  as a *sequential* encoding — sort by magnitude, shade by rank, and direct-label
+  every slice so identity never depends on colour. Validate the ramp for
+  monotonic lightness and a 3:1 contrast floor rather than eyeballing it.
+- **Fixtures belong outside `services/`.** Pages need placeholder data before the
+  data layer exists, but `services/` is one owner's lane. `frontend/src/fixtures/`
+  shaped to documented `SCHEMA.md` columns invents nothing and turns integration
+  into a one-line import swap per page.
+- **An auth wall makes unbuilt-backend screens unreviewable.** Everything behind
+  `ProtectedRoute` is invisible until credentials exist. A render smoke check that
+  walks every route catches crashes in the meantime and costs one file.
+
 The schema is also a living contract. Design it step by step, starting with the
 smallest structure required by the active feature. Update `docs/SCHEMA.md`, the
 migrations, generated types, and affected service documentation together as the

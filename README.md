@@ -14,7 +14,7 @@ npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite. For environment-backed screens, copy `.env.example` to `frontend/.env.local` and fill in the shared Supabase values. The public landing page must render without them.
+Open the local URL printed by Vite. For environment-backed screens, copy `frontend/.env.example` to `frontend/.env.local` and fill in the shared Supabase values. The public landing page must render without them; every screen behind `/login` needs them.
 
 ## Checks
 
@@ -22,7 +22,12 @@ Open the local URL printed by Vite. For environment-backed screens, copy `.env.e
 cd frontend
 npm run lint
 npm run build
+npm run smoke
 ```
+
+`npm run smoke` renders every route to a string and fails if any screen throws or
+if the auth guard lets an anonymous visitor through. It is the only way to verify
+the authenticated screens before Supabase credentials are available.
 
 ## Deployment
 

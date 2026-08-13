@@ -51,7 +51,7 @@ Status: **IN PROGRESS — Praneet is simplifying the schema iteratively.**
 
 Owner: Armaan
 
-Status: **IN PROGRESS — claiming all ten remaining wireframe screens.**
+Status: **BUILT — awaiting Armaan's local review. Not pushed.**
 
 Screens 1 and 2 (login, registration) are Praneet's and are not listed here.
 Decisions locked with Armaan before implementation:
@@ -62,19 +62,24 @@ Decisions locked with Armaan before implementation:
 - City and activity search share one `/explore` route with tabs.
 - Placeholder data lives in `frontend/src/fixtures/`, shaped to documented `docs/SCHEMA.md` columns.
 
-- [ ] Extract routing into `router.tsx` with a shared `ProtectedRoute`.
-- [ ] Build the app shell and the fixture set.
-- [ ] Screen 3 — `/dashboard`, replacing the auth placeholder.
-- [ ] Screen 4 — `/trips/new`, create a trip.
-- [ ] Screen 5 — `/trips/:tripId/build`, itinerary builder.
-- [ ] Screen 6 — `/trips`, trip listing grouped by ongoing, upcoming, and completed.
-- [ ] Screen 7 — `/profile`.
-- [ ] Screen 8 — `/explore`, cities and activities.
-- [ ] Screen 9 — `/trips/:tripId`, itinerary view with the budget breakdown.
-- [ ] Screen 10 — `/community`.
-- [ ] Screen 11 — `/calendar`.
-- [ ] Screen 12 — `/admin`.
-- [ ] Verify lint, production build, mobile, keyboard, and reduced motion.
+- [x] Extract routing into `router.tsx` with a shared `ProtectedRoute`.
+- [x] Build the app shell and the fixture set.
+- [x] Screen 3 — `/dashboard`, replacing the auth placeholder.
+- [x] Screen 4 — `/trips/new`, create a trip.
+- [x] Screen 5 — `/trips/:tripId/build`, itinerary builder.
+- [x] Screen 6 — `/trips`, trip listing grouped by ongoing, upcoming, and completed.
+- [x] Screen 7 — `/profile`.
+- [x] Screen 8 — `/explore`, cities and activities.
+- [x] Screen 9 — `/trips/:tripId`, itinerary view with the budget breakdown.
+- [x] Screen 10 — `/community`.
+- [x] Screen 11 — `/calendar`.
+- [x] Screen 12 — `/admin`.
+- [x] Verify lint, production build, mobile, keyboard, and reduced motion.
+- [ ] **Blocked on Praneet:** the ten screens sit behind `ProtectedRoute`, so they
+  cannot be opened locally until Supabase env values exist and a session can be
+  created. `npm run smoke` renders every route meanwhile.
+- [ ] Replace each `fixtures/` import with a documented service function once
+  trip, city, and activity services are added to `docs/SERVICES.md`.
 
 ## Integration gate
 

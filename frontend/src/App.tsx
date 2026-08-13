@@ -1,16 +1,10 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
-import { useAuth, type AuthStatus } from './auth/auth-context'
-import { DashboardPage } from './pages/DashboardPage'
-import { LoginPage } from './pages/LoginPage'
-
-export type Viewer = {
-  displayName: string | null
-  email: string
-}
+import { Link } from 'react-router-dom'
+import type { AuthStatus } from './auth/auth-context'
+import type { AuthViewer } from './services/auth'
 
 type LandingPageProps = {
   authStatus?: AuthStatus
-  viewer?: Viewer | null
+  viewer?: AuthViewer | null
 }
 
 const routeStops = [
@@ -60,18 +54,18 @@ function SessionAction({ authStatus, viewer }: Required<LandingPageProps>) {
     const identity = viewer?.displayName || viewer?.email || 'Your account'
 
     return (
-      <a className="session-action is-authenticated" href="/dashboard">
+      <Link className="session-action is-authenticated" to="/dashboard">
         <span className="session-dot" aria-hidden="true" />
         <span className="session-identity">{identity}</span>
         <span aria-hidden="true">&#8599;</span>
-      </a>
+      </Link>
     )
   }
 
   return (
-    <a className="session-action" href="/login">
+    <Link className="session-action" to="/login">
       Log in <span aria-hidden="true">&#8599;</span>
-    </a>
+    </Link>
   )
 }
 
@@ -177,9 +171,9 @@ function Hero(props: Required<LandingPageProps>) {
               turns a scattered travel idea into a trip ready to take.
             </p>
             <div className="hero-actions">
-              <a className="button button-primary" href="/login">
+              <Link className="button button-primary" to="/login">
                 Start planning <span aria-hidden="true">&#8599;</span>
-              </a>
+              </Link>
               <a className="text-link" href="#why">See the journey &#8595;</a>
             </div>
           </div>
@@ -304,9 +298,9 @@ function FinalCall({ authStatus }: Pick<Required<LandingPageProps>, 'authStatus'
           <span className="display-italic">Plan clearer.</span>
         </h2>
       </div>
-      <a className="button button-light" href={isAuthenticated ? '/dashboard' : '/login'}>
+      <Link className="button button-light" to={isAuthenticated ? '/dashboard' : '/login'}>
         {isAuthenticated ? 'Open your trips' : 'Start your first trip'} <span aria-hidden="true">&#8599;</span>
-      </a>
+      </Link>
     </section>
   )
 }
@@ -319,7 +313,7 @@ function Footer() {
       <div>
         <a href="#why">Why GlobeTrotter</a>
         <a href="#inside">Inside the plan</a>
-        <a href="/login">Log in</a>
+        <Link to="/login">Log in</Link>
       </div>
       <small>&copy; 2026 GLOBETROTTER</small>
     </footer>
@@ -345,15 +339,4 @@ export function LandingPage({
   )
 }
 
-export default function App() {
-  const { status, viewer } = useAuth()
-
-  return (
-    <Routes>
-      <Route path="/" element={<LandingPage authStatus={status} viewer={viewer} />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/dashboard" element={<DashboardPage />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  )
-}
+export default LandingPage
