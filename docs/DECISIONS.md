@@ -1,25 +1,34 @@
 # GlobeTrotter Decisions
 
-## Build 1
+## Current build
 
 ### Product message
 
-The landing page focuses on one promise: plan a complete multi-city journey in one visual place while keeping dates, activities, and budget connected.
+GlobeTrotter turns a multi-city idea into one clear route with dates, daily plans, costs, and sharing kept together.
 
 ### Visual direction
 
-The supplied Hyer Aviation reference is adapted into a travel-planning system:
+The first landing-page direction was rejected. The rebuild uses the supplied dope.security reference as a quality and composition benchmark, not a content template.
 
-- Cool sky and off-white surfaces with deep ink typography.
-- One clay accent for the primary action and route line.
-- Oversized sans-serif display type, pill actions, and hard-edged image panels.
-- A semantic route line is the signature device. It connects the product story instead of acting as decoration.
-- Generated editorial travel photography replaces fake dashboards and generic stock imagery.
+- Near-black canvas with one signal-violet accent.
+- Full-bleed twilight cloud photography in the hero.
+- Editorial italic display type paired with a precise geometric sans and mono utility labels.
+- A translucent trip-pass panel shows the route, dates, budget, and plan status.
+- Hairlines and translucent washes create structure. No card shadows.
+- The page stays travel-specific and does not copy dope.security branding or product content.
+
+### Authentication handoff
+
+- Public landing route: `/`, owned by Armaan.
+- Login route and auth state: `/login`, owned by Praneet.
+- Authenticated destination: `/dashboard`.
+- The landing navigation supports anonymous, loading, and authenticated viewer states.
+- The session source of truth is the auth provider. The landing page never reads Supabase storage or imports the Supabase client directly.
+- Until the provider lands, the compiled landing page renders the anonymous state and links to `/login`.
 
 ### Implementation
 
 - React 18, TypeScript, Vite, and Tailwind CSS.
-- React Router is deferred until the authenticated shell needs it. The current v6 release was removed after `npm audit` reported two moderate advisories in its dependency chain.
-- Native CSS handles the page motion and respects `prefers-reduced-motion`.
-- Color tokens respond to the system color scheme.
-- The first build has no Supabase import. Praneet owns the future services layer and schema integration.
+- Native CSS handles motion and respects `prefers-reduced-motion`.
+- One generated WebP hero image is the only raster asset required by the redesign.
+- No additional UI or animation dependency is needed.
