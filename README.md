@@ -31,3 +31,5 @@ Import the repository root in Vercel. The root `vercel.json` installs and builds
 ## Team contract
 
 Read `AGENTS.md` before making changes. Armaan owns the landing page and integration. Praneet owns Supabase, auth, `/login`, and `frontend/src/services/`. The landing/auth handoff is documented in `docs/AUTH.md`.
+
+Hi Tigga
