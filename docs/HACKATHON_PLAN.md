@@ -44,8 +44,7 @@ services layer gives the same separation with none of the plumbing.
 
 **Praneet's backend scope** — decided as: Supabase schema + RLS + seed + a
 `src/services/` query layer in the repo + SQL functions for any real
-aggregation logic. Schema-and-RLS alone leaves nothing in the repo to point at
-when a judge asks to see the backend. Edge Functions skipped — deploy friction,
+aggregation logic. Schema-and-RLS alone leaves nothing in the repo to point at when a judge asks to see the backend. Edge Functions skipped — deploy friction,
 no visible gain.
 
 ---
@@ -53,7 +52,7 @@ no visible gain.
 ## 3. Repo shape
 
 ```
-src/
+frontend/src/
   components/ui/        ← Armaan only
   components/layout/    ← Armaan only
   pages/<screen>/       ← page owner's lane
@@ -63,7 +62,7 @@ src/
   lib/devAuth.ts
   types/database.ts     ← generated, never hand-edited
   router.tsx            ← Armaan only
-supabase/
+backend/supabase/
   migrations/           ← Praneet only
   seed.sql              ← Praneet only
 docs/
