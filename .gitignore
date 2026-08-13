@@ -6,3 +6,7 @@ dist/
 .env.local
 .vercel/
 tmp/
+
+# Builder-specific agent instructions (each builder maintains local copies)
+/AGENTS.md
+/CLAUDE.md

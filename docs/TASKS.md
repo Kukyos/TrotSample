@@ -1,6 +1,8 @@
 # GlobeTrotter Tasks
 
-Update this file in the same change as the work. A code change without a task update is incomplete.
+Read this file before starting any work. Mark a feature in progress, commit, and
+push that task claim before implementation begins. Keep it current throughout
+the build. A code change without a task update is incomplete.
 
 ## Landing redesign
 
@@ -12,11 +14,13 @@ Owner: Armaan
 - [x] Link anonymous users to `/login` and authenticated users to `/dashboard`.
 - [x] Verify mobile, keyboard, reduced-motion, lint, build, and local rendering.
 - [x] Run locally for Armaan's approval.
-- [ ] Push only after approval.
+- [x] Push only after approval.
 
 ## Authentication and login
 
 Owner: Praneet
+
+Status: **IN PROGRESS — login page owned by Praneet.**
 
 - [ ] Add a maintained, audit-clean React Router release.
 - [ ] Preserve `/` as the public landing page.
@@ -30,6 +34,10 @@ Owner: Praneet
 ## Supabase foundation
 
 Owner: Praneet
+
+Status: **IN PROGRESS — Praneet is simplifying the schema iteratively.**
+
+- [ ] Reduce the initial schema to the smallest structure required by active features.
 
 - [ ] Document tables, relationships, and RLS policies in `docs/SCHEMA.md`.
 - [ ] Create migrations and seed data in `backend/supabase/`.
