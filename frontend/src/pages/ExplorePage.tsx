@@ -1,18 +1,36 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { activities, cities, cityById } from '../fixtures/catalog'
-import { formatMoney } from '../lib/trip'
+import { cities } from '../fixtures/catalog'
+import { searchPlaces, type PlaceSearchResult } from '../services/places'
 
 type Tab = 'cities' | 'activities'
 type Sort = 'popular' | 'name' | 'cost'
+type SearchStatus = 'idle' | 'loading' | 'success' | 'error'
 
 const CATEGORIES = ['all', 'sightseeing', 'food', 'adventure', 'culture', 'nightlife'] as const
+
+function priceTierLabel(priceTier: number | null) {
+  if (priceTier === null) return 'Price unknown'
+  return '$'.repeat(Math.max(1, Math.min(4, Math.round(priceTier))))
+}
+
+function placeLocation(place: PlaceSearchResult) {
+  return [place.locality, place.region, place.countryCode].filter(Boolean).join(', ')
+    || place.formattedAddress
+    || 'Location details unavailable'
+}
 
 export function ExplorePage() {
   const [params, setParams] = useSearchParams()
   const [tab, setTab] = useState<Tab>('cities')
   const [sort, setSort] = useState<Sort>('popular')
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>('all')
+  const [near, setNear] = useState('')
+  const [places, setPlaces] = useState<PlaceSearchResult[]>([])
+  const [attribution, setAttribution] = useState('')
+  const [activitySearchLabel, setActivitySearchLabel] = useState('')
+  const [searchStatus, setSearchStatus] = useState<SearchStatus>('idle')
+  const [searchError, setSearchError] = useState('')
 
   const query = params.get('q') ?? ''
   const needle = query.trim().toLowerCase()
@@ -36,19 +54,46 @@ export function ExplorePage() {
   }, [needle, sort])
 
   const visibleActivities = useMemo(() => {
-    const matched = activities.filter((activity) => {
-      const city = cityById.get(activity.city_id)
-      const haystack = `${activity.name} ${activity.description ?? ''} ${city?.name ?? ''}`.toLowerCase()
-      const matchesQuery = !needle || haystack.includes(needle)
-      const matchesCategory = category === 'all' || activity.category === category
-      return matchesQuery && matchesCategory
-    })
+    const matched = places.filter((place) => category === 'all' || place.category === category)
     return [...matched].sort((a, b) => {
       if (sort === 'name') return a.name.localeCompare(b.name)
-      if (sort === 'cost') return a.estimated_cost - b.estimated_cost
-      return b.popularity_score - a.popularity_score
+      if (sort === 'cost') return (a.priceTier ?? Number.POSITIVE_INFINITY) - (b.priceTier ?? Number.POSITIVE_INFINITY)
+      return (b.providerPopularity ?? -1) - (a.providerPopularity ?? -1)
     })
-  }, [needle, sort, category])
+  }, [places, sort, category])
+
+  const searchActivities = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (tab !== 'activities') return
+
+    const normalizedQuery = query.trim()
+    const normalizedNear = near.trim()
+    if (normalizedQuery.length < 2 || normalizedNear.length < 2) {
+      setSearchStatus('error')
+      setSearchError('Enter both something to do and a city or destination.')
+      return
+    }
+
+    setSearchStatus('loading')
+    setSearchError('')
+    try {
+      const result = await searchPlaces({
+        query: normalizedQuery,
+        near: normalizedNear,
+        limit: 20,
+        sort: sort === 'popular' ? 'popularity' : sort === 'cost' ? 'relevance' : 'relevance',
+      })
+      setPlaces(result.places)
+      setAttribution(result.attribution)
+      setActivitySearchLabel(`${normalizedQuery} near ${normalizedNear}`)
+      setSearchStatus('success')
+    } catch (error) {
+      setPlaces([])
+      setAttribution('')
+      setSearchStatus('error')
+      setSearchError(error instanceof Error ? error.message : 'Place search failed.')
+    }
+  }
 
   const count = tab === 'cities' ? visibleCities.length : visibleActivities.length
 
@@ -61,16 +106,31 @@ export function ExplorePage() {
         </div>
       </header>
 
-      <div className="explore-search" role="search">
+      <form className="explore-search" role="search" onSubmit={searchActivities}>
         <label className="visually-hidden" htmlFor="explore-input">Search cities and activities</label>
         <input
           id="explore-input"
           type="search"
           value={query}
-          placeholder="Search a city, a region, or something to do"
+          placeholder={tab === 'cities' ? 'Search a city or region' : 'What would you like to do?'}
           onChange={(event) => setQuery(event.target.value)}
         />
-      </div>
+        {tab === 'activities' && (
+          <>
+            <label className="visually-hidden" htmlFor="explore-near">City or destination</label>
+            <input
+              id="explore-near"
+              type="search"
+              value={near}
+              placeholder="Near city or destination"
+              onChange={(event) => setNear(event.target.value)}
+            />
+            <button type="submit" className="ghost-button" disabled={searchStatus === 'loading'}>
+              {searchStatus === 'loading' ? 'Searching…' : 'Search'}
+            </button>
+          </>
+        )}
+      </form>
 
       <div className="explore-controls">
         <div className="tab-row" role="tablist" aria-label="Result type">
@@ -101,19 +161,31 @@ export function ExplorePage() {
           <select id="explore-sort" value={sort} onChange={(event) => setSort(event.target.value as Sort)}>
             <option value="popular">Most popular</option>
             <option value="name">Name</option>
-            <option value="cost">{tab === 'cities' ? 'Cost index' : 'Price'}</option>
+            <option value="cost">{tab === 'cities' ? 'Cost index' : 'Price tier'}</option>
           </select>
         </div>
       </div>
 
-      <p className="result-count" role="status">
-        {count} {count === 1 ? 'result' : 'results'}{query && ` for “${query}”`}
-      </p>
+      {tab === 'activities' && searchStatus === 'error' ? (
+        <p className="explore-message is-error" role="alert">{searchError}</p>
+      ) : (
+        <p className="result-count" role="status" aria-live="polite">
+          {searchStatus === 'loading'
+            ? 'Searching Foursquare…'
+            : `${count} ${count === 1 ? 'result' : 'results'}${tab === 'cities' && query ? ` for “${query}”` : activitySearchLabel ? ` for “${activitySearchLabel}”` : ''}`}
+        </p>
+      )}
 
-      {count === 0 ? (
+      {tab === 'activities' && searchStatus === 'idle' ? (
+        <div className="empty-state">
+          <p>Enter an activity and destination, then search Foursquare.</p>
+        </div>
+      ) : searchStatus === 'loading' && tab === 'activities' ? (
+        <div className="empty-state" aria-hidden="true"><p>Looking for places…</p></div>
+      ) : count === 0 ? (
         <div className="empty-state">
           <p>Nothing matches that search yet.</p>
-          <button type="button" className="text-link" onClick={() => setQuery('')}>Clear the search</button>
+          {tab === 'cities' && <button type="button" className="text-link" onClick={() => setQuery('')}>Clear the search</button>}
         </div>
       ) : tab === 'cities' ? (
         <ul className="city-grid is-wide">
@@ -126,39 +198,37 @@ export function ExplorePage() {
                 <span className="city-meta">
                   {city.region} · cost index {city.cost_index?.toFixed(1) ?? '—'}
                 </span>
-                {/* ponytail: routes to the trip picker until an add-stop service exists */}
-                <Link className="ghost-button" to="/trips">
-                  Add to a trip
-                </Link>
+                <Link className="ghost-button" to="/trips">Add to a trip</Link>
               </article>
             </li>
           ))}
         </ul>
       ) : (
-        <ul className="activity-list">
-          {visibleActivities.map((activity) => (
-            <li key={activity.id}>
-              <article className="activity-row">
-                <div>
-                  <span className={`kind-tag is-${activity.category}`}>{activity.category}</span>
-                  <h3>{activity.name}</h3>
-                  <p>{activity.description}</p>
-                  <span className="city-meta">
-                    {cityById.get(activity.city_id)?.name} · {activity.duration_minutes ?? 0} min
-                  </span>
-                </div>
-                <div className="activity-cost">
-                  <strong>
-                    {activity.estimated_cost > 0
-                      ? formatMoney(activity.estimated_cost, activity.currency_code)
-                      : 'Free'}
-                  </strong>
-                  <Link className="ghost-button" to="/trips">Add to a trip</Link>
-                </div>
-              </article>
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="activity-list">
+            {visibleActivities.map((place) => (
+              <li key={place.fsqPlaceId}>
+                <article className="activity-row">
+                  <div>
+                    <span className={`kind-tag is-${place.category}`}>{place.category}</span>
+                    <h3>{place.name}</h3>
+                    <p>{place.description || place.providerCategoryName || 'No description is available.'}</p>
+                    <span className="city-meta">
+                      {placeLocation(place)}
+                      {place.rating !== null && ` · rated ${place.rating.toFixed(1)}`}
+                      {place.distanceMeters !== null && ` · ${Math.round(place.distanceMeters)} m away`}
+                    </span>
+                  </div>
+                  <div className="activity-cost">
+                    <strong>{priceTierLabel(place.priceTier)}</strong>
+                    <Link className="ghost-button" to="/trips">Add to a trip</Link>
+                  </div>
+                </article>
+              </li>
+            ))}
+          </ul>
+          {attribution && <p className="provider-attribution">{attribution}</p>}
+        </>
       )}
     </div>
   )
