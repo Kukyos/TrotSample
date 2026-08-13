@@ -10,6 +10,7 @@ import {
 
 const FOURSQUARE_SEARCH_URL = "https://places-api.foursquare.com/places/search"
 const FOURSQUARE_API_VERSION = "2025-06-17"
+const FUNCTION_VERSION = "2026-08-13-pro-fields"
 const REQUEST_TIMEOUT_MS = 8_000
 
 function json(body: unknown, status = 200): Response {
@@ -58,6 +59,18 @@ export default {
         console.error("Foursquare place search failed", { status: response.status })
 
         if (response.status === 429) {
+          const providerError = await response.clone().json().catch(() => null) as { message?: unknown } | null
+          const providerMessage = typeof providerError?.message === "string" ? providerError.message : ""
+          if (/no API credits remaining|Purchasing credits is required/i.test(providerMessage)) {
+            return json({
+              error: {
+                code: "provider_credits_unavailable",
+                message: "Foursquare rejected this request because the account has no API credits for it.",
+                retryable: false,
+              },
+              functionVersion: FUNCTION_VERSION,
+            }, 503)
+          }
           return json({ error: { code: "rate_limited", message: "Place search is temporarily busy. Try again shortly.", retryable: true } }, 503)
         }
         if (response.status >= 400 && response.status < 500 && response.status !== 401 && response.status !== 403) {
@@ -74,6 +87,7 @@ export default {
       return json({
         places,
         attribution: "Powered by Foursquare",
+        functionVersion: FUNCTION_VERSION,
       })
     } catch (error) {
       const timedOut = error instanceof DOMException && error.name === "AbortError"
