@@ -22,9 +22,7 @@ finishing fast.
 **Split is horizontal.** One person owns the whole data layer; the rest own
 pages. Pages rarely collide, the data layer would collide constantly.
 
-**Run 1 is just Armaan + Praneet.** Armaan builds frontend pages in feature
-branches; Praneet does backend and tests. Pooja and Athira join from Run 2 and
-claim their own pages in the task doc — first to claim owns it.
+**Run 1 is just Armaan + Praneet.** Armaan owns the landing redesign and integration. Praneet owns Supabase, the auth provider, and the login page. Pooja and Athira join from Run 2 and claim their own pages in the task doc — first to claim owns it.
 
 **Core rule:** nobody edits outside their ownership lane without asking. This
 is the entire reason four AI sessions can share one repo.
@@ -57,7 +55,7 @@ frontend/src/
   components/layout/    ← Armaan only
   pages/<screen>/       ← page owner's lane
   services/             ← Praneet only. ALL Supabase access.
-  context/AuthProvider  ← Armaan only
+  context/AuthProvider  ← Praneet for Run 1 auth work
   hooks/
   lib/devAuth.ts
   types/database.ts     ← generated, never hand-edited
@@ -150,6 +148,7 @@ Written in the **first commit**, once the real problem statement is known:
 | `docs/SCHEMA.md` | tables, columns, types, RLS policies. Praneet's source of truth |
 | `docs/SERVICES.md` | every function the frontend may call. The backend/frontend contract |
 | `docs/TASKS.md` | tiered task list, claim-by-name, ticked in the same push as the work |
+| `docs/AUTH.md` | landing/login session-state and routing contract |
 
 The load-bearing line in `AGENTS.md`: **if it's not in SCHEMA or SERVICES, stop
 and ask — do not invent a column or a service function.**
@@ -185,6 +184,8 @@ thirteen hollow ones — but only if the six include something beyond CRUD.
 `vercel.json`, Supabase project, schema, RLS tested, types generated, seed data,
 dev account with a populated demo record, Vite scaffold, router, auth shell,
 design tokens, UI primitives. **Deployed — live link exists before any feature.**
+
+**Current Run 1 exception:** landing design and login/auth are being built in parallel. The boundary is `docs/AUTH.md`: Armaan does not edit `/login` or auth services; Praneet does not replace the landing composition.
 
 **Phase 1 — Tier 1.** Backend and frontend in parallel. Praneet's services land
 ahead of the pages consuming them. Stub every service signature with fixture

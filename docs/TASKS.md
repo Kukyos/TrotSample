@@ -2,37 +2,46 @@
 
 Update this file in the same change as the work. A code change without a task update is incomplete.
 
-## Build 1: Foundation and landing page
+## Landing redesign
 
 Owner: Armaan
 
-- [x] Read the GlobeTrotter brief, FAQ, mockup export, design reference, and pipeline plan.
-- [x] Scaffold React 18, TypeScript, Vite, and Tailwind CSS in `frontend/`.
-- [x] Build the responsive public landing page with real travel imagery.
-- [x] Add reduced-motion, keyboard-focus, mobile navigation, and color-scheme support.
-- [x] Add the Vercel build configuration and SPA rewrite.
-- [x] Add repository ownership and build rules in `AGENTS.md` and `CLAUDE.md`.
-- [x] Add environment variable documentation.
-- [x] Verify lint, production build, and production dependency audit.
-- [x] Run locally for Armaan's review.
-- [ ] Push to `main` after approval.
+- [x] Review the replacement `DESIGN.md` and dope.security reference.
+- [ ] Replace the rejected landing page with the dark editorial travel direction.
+- [ ] Add anonymous, loading, and authenticated navigation treatments.
+- [ ] Link anonymous users to `/login` and authenticated users to `/dashboard`.
+- [ ] Verify mobile, keyboard, reduced-motion, lint, build, and local rendering.
+- [ ] Run locally for Armaan's approval.
+- [ ] Push only after approval.
 
-## Backend foundation
+## Authentication and login
+
+Owner: Praneet
+
+- [ ] Add a maintained, audit-clean React Router release.
+- [ ] Preserve `/` as the public landing page.
+- [ ] Build `/login` without editing the landing-page composition.
+- [ ] Implement the auth provider contract in `docs/AUTH.md`.
+- [ ] Add login, signup, logout, session restore, loading, and error states.
+- [ ] Redirect a successful login to `/dashboard`.
+- [ ] Wire the real auth state into the landing navigation.
+- [ ] Keep all Supabase access behind the provider and `frontend/src/services/`.
+
+## Supabase foundation
 
 Owner: Praneet
 
 - [ ] Document tables, relationships, and RLS policies in `docs/SCHEMA.md`.
-- [ ] Create Supabase migrations and seed data in `backend/supabase/`.
+- [ ] Create migrations and seed data in `backend/supabase/`.
 - [ ] Generate `frontend/src/types/database.ts` from the live schema.
-- [ ] Document the frontend contract in `docs/SERVICES.md`.
-- [ ] Implement Supabase access only in `frontend/src/services/`.
+- [ ] Document frontend service functions in `docs/SERVICES.md`.
 - [ ] Test RLS with the seeded development account.
 
-## Next frontend build
+## Integration gate
 
 Owner: Armaan
 
-- [ ] Add the router and authenticated application shell using a non-vulnerable React Router release.
-- [ ] Add the real development auto-login flow behind `import.meta.env.DEV`.
-- [ ] Build shared UI primitives in `frontend/src/components/ui/`.
-- [ ] Build the login and signup screen.
+- [ ] Pull Praneet's auth work after the landing redesign is approved.
+- [ ] Resolve router and auth-provider wiring without bypassing the service boundary.
+- [ ] Verify anonymous, loading, authenticated, logout, refresh, and deep-link flows.
+- [ ] Confirm the production Vercel build and preview URL.

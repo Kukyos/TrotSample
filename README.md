@@ -4,7 +4,7 @@ GlobeTrotter is a visual, budget-aware multi-city trip planner. This repository 
 
 ## Current build
 
-The first build contains the public landing page and the shared project guardrails. Product screens and the Supabase-backed service layer follow in later builds.
+The public landing page owns `/`. Praneet is building the Supabase-backed `/login` route and auth provider in parallel.
 
 ## Local setup
 
@@ -14,7 +14,7 @@ npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite. For environment-backed screens, copy `.env.example` to `frontend/.env.local` and fill in the shared Supabase values.
+Open the local URL printed by Vite. For environment-backed screens, copy `.env.example` to `frontend/.env.local` and fill in the shared Supabase values. The public landing page must render without them.
 
 ## Checks
 
@@ -30,4 +30,4 @@ Import the repository root in Vercel. The root `vercel.json` installs and builds
 
 ## Team contract
 
-Read `AGENTS.md` before making changes. Armaan owns frontend integration and design. Praneet owns Supabase and `frontend/src/services/`. Every code change updates `docs/TASKS.md`, runs locally, and is reviewed before push.
+Read `AGENTS.md` before making changes. Armaan owns the landing page and integration. Praneet owns Supabase, auth, `/login`, and `frontend/src/services/`. The landing/auth handoff is documented in `docs/AUTH.md`.

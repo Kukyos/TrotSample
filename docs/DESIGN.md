@@ -1,231 +1,259 @@
-# Hyer Aviation — Style Reference
-> Cockpit twilight over parchment. A pale dawn-sky meets a slab-serif logo the size of a fuselage, with one warm clay accent breaking the monochrome restraint.
+# dope.security — Style Reference
+> Midnight terminal with violet beacons
 
-**Theme:** mixed
+**Theme:** dark
 
-Hyer Aviation reads as a luxury travel editorial: a pale sky-bluish hero with a sculptural jet floats over a bright white canvas, anchored by near-black typography so heavy it feels cast in metal. The palette is deliberately austere — one warm terracotta accent punctuates an otherwise monochromatic system, appearing only in featured solution cards while the rest of the interface stays in deep ink and parchment. Typography is the brand's loudest voice: a single display face at 187px and 131px with extreme tight tracking dominates hero sections, while body text settles at 18px with generous 1.61 line-height for a calm, breathable rhythm. Every interactive element is a full pill (1000px+ radius) or a hard-edged panel, creating a tension between soft, inviting buttons and the architectural boldness of the headlines.
+dope.security is a midnight terminal aesthetic: near-black canvas, a single vivid violet signal flare, and typography that borrows from luxury travel editorial. The system pairs a geometric sans (Whyte Inktrap) with an italic display serif (GrandSlang) for hero drama and a monospaced inktrap with extreme tracking for the section labels that feel stamped from a boarding pass. Surfaces are flat and borderless; elevation comes from hairline strokes and translucent washes, never shadows. Color is rationed — the violet only appears as a glow, a fill on a single feature, and accent strokes — while the rest of the interface stays in a tight achromatic scale from #f7f9fa down to #090909. The result reads as confident, expensive, and slightly secretive, like a premium lounge at 2am with a single neon sign.
 
 ## Tokens — Colors
 
 | Name | Value | Token | Role |
 |------|-------|-------|------|
-| Deep Ink | `#000d10` | `--color-deep-ink` | Primary text, footer background, filled action buttons, icon strokes — the structural near-black carries the entire brand voice in type and CTAs |
-| Pure White | `#ffffff` | `--color-pure-white` | Page canvas, card surfaces, button text on dark, nav backdrop — the quiet field against which everything else reads |
-| Cool Ash | `#8e8e95` | `--color-cool-ash` | Secondary body text, nav items, muted helper labels — the only neutral that recedes deliberately behind primary copy |
-| Pebble | `#d5d3d4` | `--color-pebble` | Hairline borders, dividers, subtle surface alternation between dark sections — visible only at edges |
-| Midnight Hull | `#0f0f1c` | `--color-midnight-hull` | Dark section backgrounds (Travel Support area) — slightly bluer than Deep Ink to differentiate stacked dark bands |
-| Charcoal Deck | `#151623` | `--color-charcoal-deck` | Elevated dark panels and deep section backgrounds — the top of the dark surface stack with a faint indigo cast |
-| Clay Ember | `#bc7155` | `--color-clay-ember` | Featured solution card background, decorative fills — the single warm note in an otherwise cold system, used sparingly to make one offering feel chosen |
+| Near Black | `#090909` | `--color-near-black` | Page canvas, card surfaces, filled button backgrounds — the default void everything else floats in |
+| Almost White | `#f7f9fa` | `--color-almost-white` | Primary text, icon strokes, nav labels, and 1px borders — the paper-white that does all the talking against the void |
+| Soft White | `#f0f0f0` | `--color-soft-white` | Section label text in the stamped uppercase style — same family as Almost White but slightly dimmer for hierarchy |
+| Steel | `#828384` | `--color-steel` | Muted secondary text, inactive button surfaces, subdued borders |
+| Graphite | `#474747` | `--color-graphite` | Card internal text and subtle dividers — readable on the near-black without competing with the primary text |
+| Iron | `#423738` | `--color-iron` | Dark borders and separators for elevated surfaces and inverted UI. Do not promote it to the primary CTA color |
+| Ash | `#6b6b6b` | `--color-ash` | Nav border dividers, helper text, low-emphasis body copy |
+| Signal Violet | `#af50ff` | `--color-signal-violet` | The only chromatic voice: feature card glow, primary action fill, and accent strokes — rationed like runway lighting, not decoration |
+| Lavender Mist | `#e1bdff` | `--color-lavender-mist` | Soft tint paired with Signal Violet for contrast-safe text and washed background accents |
 
 ## Tokens — Typography
 
-### HelveticaNowDisplay — Sole typeface across the system. The weight 700 at 187px with -0.02em tracking is the signature: it sets the wordmark and hero at near-architectural scale, turning headlines into physical objects. Weight 400 at 18px with 1.61 line-height handles all body copy, creating the most spacious text block in the type system. · `--font-helveticanowdisplay`
-- **Substitute:** Neue Haas Grotesk Display, Inter, Helvetica Neue
-- **Weights:** 400, 700
-- **Sizes:** 17px, 18px, 20px, 23px, 30px, 37px, 52px, 60px, 63px, 131px, 187px
-- **Line height:** 0.80 (display) → 1.00 (headings) → 1.61 (body)
-- **Letter spacing:** -3.74px at 187px, -2.62px at 131px, -1.26px at 63px, -0.52px at 52px, -0.37px at 37px, -0.23px at 23px, 0 at 18-20px
-- **OpenType features:** `normal`
-- **Role:** Sole typeface across the system. The weight 700 at 187px with -0.02em tracking is the signature: it sets the wordmark and hero at near-architectural scale, turning headlines into physical objects. Weight 400 at 18px with 1.61 line-height handles all body copy, creating the most spacious text block in the type system.
+### Whyte Inktrap — Primary workhorse — body, nav, buttons, links, and most headings. The inktrap corners (the tiny cuts where straight strokes meet) are the signature; they give the geometry warmth without losing precision. Weight 300 carries the larger sizes and creates the editorial lightness that pairs with the GrandSlang italic. · `--font-whyte-inktrap`
+- **Substitute:** Inter, General Sans
+- **Weights:** 300, 400, 500, 700
+- **Sizes:** 10, 12, 14, 16, 18, 20, 24, 28, 32, 40, 48, 50, 64, 80, 88
+- **Line height:** 1.0–1.6
+- **Letter spacing:** Tight on display: -0.04em at 64px, -0.03em at 48px, -0.01em at 20px, 0 at 16px, wide on labels: 0.07em at 12px uppercase, 0.18em at 10px uppercase
+- **Role:** Primary workhorse — body, nav, buttons, links, and most headings. The inktrap corners (the tiny cuts where straight strokes meet) are the signature; they give the geometry warmth without losing precision. Weight 300 carries the larger sizes and creates the editorial lightness that pairs with the GrandSlang italic.
 
-### sans-serif — sans-serif — detected in extracted data but not described by AI · `--font-sans-serif`
+### Whyte Inktrap Mono — The stamped-letterhead voice: 74px uppercase sections like 'SSL INSPECTION' and 'URL FILTERING' with 0.2em tracking. The mono is intentionally mechanical against the humanist Whyte to create the boarding-pass rhythm. This font does the section signposting. · `--font-whyte-inktrap-mono`
+- **Substitute:** JetBrains Mono, IBM Plex Mono
+- **Weights:** 400
+- **Sizes:** 14, 74
+- **Line height:** 0.9–1.5
+- **Letter spacing:** 0.2em constant — the breath between letters is the design
+- **OpenType features:** `"ss01" on (if available, for the alternate inktrap cuts)`
+- **Role:** The stamped-letterhead voice: 74px uppercase sections like 'SSL INSPECTION' and 'URL FILTERING' with 0.2em tracking. The mono is intentionally mechanical against the humanist Whyte to create the boarding-pass rhythm. This font does the section signposting.
+
+### GrandSlang — The italic display serif reserved for the hero and its echoes — 'Your new', 'with AI DLP'. Its warm brush-italic swells make the brand feel human and confident where the rest of the system is clinical. This is the one font that should never be used for body or nav. · `--font-grandslang`
+- **Substitute:** Tiempos Headline, Lora Italic
+- **Weights:** 300, 400
+- **Sizes:** 32, 50, 64, 88, 146
+- **Line height:** 0.8–1.5
+- **Letter spacing:** -0.03em — pulled in tight so the italic's natural flare reads as generous
+- **OpenType features:** `"liga" on, "dlig" on`
+- **Role:** The italic display serif reserved for the hero and its echoes — 'Your new', 'with AI DLP'. Its warm brush-italic swells make the brand feel human and confident where the rest of the system is clinical. This is the one font that should never be used for body or nav.
+
+### system-ui — system-ui — detected in extracted data but not described by AI · `--font-system-ui`
+- **Weights:** 600
+- **Sizes:** 16px
+- **Line height:** 1.5
+- **Role:** system-ui — detected in extracted data but not described by AI
+
+### Karla — Karla — detected in extracted data but not described by AI · `--font-karla`
 - **Weights:** 700
-- **Sizes:** 17px
-- **Line height:** 1
-- **Role:** sans-serif — detected in extracted data but not described by AI
+- **Sizes:** 16px
+- **Line height:** 1, 1.2
+- **Role:** Karla — detected in extracted data but not described by AI
 
 ### Type Scale
 
 | Role | Size | Line Height | Letter Spacing | Token |
 |------|------|-------------|----------------|-------|
-| caption | 17px | 17 | — | `--text-caption` |
-| nav | 20px | 20 | — | `--text-nav` |
-| subheading | 23px | 23 | -0.23px | `--text-subheading` |
-| heading-sm | 30px | 30 | — | `--text-heading-sm` |
-| heading | 37px | 37 | -0.37px | `--text-heading` |
-| heading-lg | 52px | 52 | -0.52px | `--text-heading-lg` |
-| display | 63px | 63 | -1.26px | `--text-display` |
-| display-xl | 131px | 131 | -2.62px | `--text-display-xl` |
-| hero | 187px | 150 | -3.74px | `--text-hero` |
+| caption | 10px | 1 | 1.8px | `--text-caption` |
+| body-sm | 14px | 1.5 | — | `--text-body-sm` |
+| body | 16px | 1.5 | — | `--text-body` |
+| subheading | 20px | 1 | -0.2px | `--text-subheading` |
+| heading-sm | 32px | 1.2 | -0.32px | `--text-heading-sm` |
+| heading | 48px | 1.2 | -0.48px | `--text-heading` |
+| heading-lg | 64px | 1.2 | -0.64px | `--text-heading-lg` |
+| section-stamp | 74px | 0.9 | 14.8px | `--text-section-stamp` |
+| display | 88px | 0.8 | -2.64px | `--text-display` |
 
 ## Tokens — Spacing & Shapes
 
 **Base unit:** 4px
 
-**Density:** spacious
+**Density:** comfortable
 
 ### Spacing Scale
 
 | Name | Value | Token |
 |------|-------|-------|
-| 11 | 11px | `--spacing-11` |
-| 13 | 13px | `--spacing-13` |
-| 15 | 15px | `--spacing-15` |
+| 4 | 4px | `--spacing-4` |
+| 8 | 8px | `--spacing-8` |
+| 12 | 12px | `--spacing-12` |
 | 16 | 16px | `--spacing-16` |
-| 17 | 17px | `--spacing-17` |
-| 21 | 21px | `--spacing-21` |
-| 22 | 22px | `--spacing-22` |
-| 23 | 23px | `--spacing-23` |
-| 31 | 31px | `--spacing-31` |
-| 34 | 34px | `--spacing-34` |
-| 38 | 38px | `--spacing-38` |
-| 52 | 52px | `--spacing-52` |
-| 53 | 53px | `--spacing-53` |
-| 59 | 59px | `--spacing-59` |
-| 68 | 68px | `--spacing-68` |
-| 119 | 119px | `--spacing-119` |
+| 20 | 20px | `--spacing-20` |
+| 24 | 24px | `--spacing-24` |
+| 32 | 32px | `--spacing-32` |
+| 40 | 40px | `--spacing-40` |
+| 48 | 48px | `--spacing-48` |
+| 64 | 64px | `--spacing-64` |
+| 72 | 72px | `--spacing-72` |
+| 80 | 80px | `--spacing-80` |
+| 96 | 96px | `--spacing-96` |
+| 128 | 128px | `--spacing-128` |
+| 136 | 136px | `--spacing-136` |
+| 160 | 160px | `--spacing-160` |
 
 ### Border Radius
 
 | Element | Value |
 |---------|-------|
-| nav | 1000px |
-| buttons | 1000px |
-| decorative | 45px |
-| heroPanels | 0px |
-| iconButtons | 100% |
+| cards | 19.2px |
+| pills | 1584px |
+| buttons | 8px |
+| smallControls | 6px |
+
+### Shadows
+
+| Name | Value | Token |
+|------|-------|-------|
+| subtle | `rgba(16, 24, 40, 0.05) 0px 1px 2px 0px` | `--shadow-subtle` |
 
 ### Layout
 
 - **Page max-width:** 1200px
-- **Section gap:** 80px
-- **Card padding:** 22px
+- **Section gap:** 120px
+- **Card padding:** 40px
 - **Element gap:** 16px
 
 ## Components
 
-### Filled Dark Pill Button
-**Role:** Primary action trigger on light backgrounds
+### Hero Boarding Pass
+**Role:** Full-bleed hero panel with a translucent glass card on the right
 
-Background #000d10, text #ffffff, 1000px border-radius, padding 15px 22px 16px 22px, font 17px weight 700. Used for CTAs like 'Hyer® Stays' and 'Hyer® Travel' that need to feel confident and terminal.
+Full-viewport dark hero on the atmospheric sky photograph. Left column: GrandSlang italic at 146px for 'Your new', Whyte Inktrap weight 400 at 64px for the main 'Secure Web Gateway', GrandSlang italic again for 'with AI DLP'. Body subhead in Whyte Inktrap 20px weight 300, muted Almost White. Right column: 19.2px radius card with rgba(237,195,196,0.05) fill, 1px white border, 'Boarding Pass' label, 'LEGACY → DS' origin/destination line, and a vertical barcode. Two pill CTA buttons inside: 1584px radius, 20px 32px padding, white text on the faint pink wash.
 
-### Ghost White Pill Button
-**Role:** Secondary action on dark surfaces
+### Stamped Section Heading
+**Role:** Full-width section signpost that replaces H2s on feature blocks
 
-Transparent background, text #ffffff, 1px white border, 1000px border-radius, same 15px 22px padding. Inverts the dark button for use on dark hero or footer contexts.
+Whyte Inktrap Mono 74px weight 400, uppercase, 0.2em letter-spacing, Soft White (#f0f0f0). Rendered as a single line that fills the container. Each letter spaced far enough apart to read as a stamp, not a heading. No underline, no decoration — the tracking IS the design. Example: 'S S L   I N S P E C T I O N'.
 
-### Circular Icon Button
-**Role:** Menu toggle and compact icon affordance
+### Filled Action Button
+**Role:** Primary dark button with white outline
 
-100% border-radius, background #000d10, white icon, square hit area. Used for the hamburger nav toggle in the hero.
+Background #090909, 1px solid #f7f9fa border, 8px radius, 16px all-around padding, white text in Whyte Inktrap 16px weight 400. Used for 'Book a Demo' and 'Log In' in the nav. The button is almost the same color as the page — the border does the work.
 
-### Featured Clay Card
-**Role:** Highlighted solution offering
+### Ghost Pill Button
+**Role:** Soft-tint pill used for secondary actions inside cards
 
-Hard-edged 0px radius rectangle, background #bc7155, white text, generous padding 53px 59px. The only warm block in the system — reserved for one product card per page to create focal asymmetry.
+Background rgba(237,195,196,0.05), no border, 1584px radius (effectively full pill), 20px 32px padding, text #f7f9fa. Example: 'Try now with Google' and 'Try now with Microsoft'. A small brand-color logo glyph sits left of the label.
 
-### Standard White Card
-**Role:** Default content container
+### Compact Outlined Button
+**Role:** Small white-bordered control for inline actions
 
-White background on canvas, 0px radius, no border, no shadow. Relies on surrounding negative space and hairline #d5d3d4 dividers above titles to define its boundary.
+Background rgba(247,249,250,0.08), 1px solid #f7f9fa border, 6px radius, 9px 15px padding. Lighter density than the filled button — used in compact toolbars and table rows.
 
-### Hero Wordmark
-**Role:** Brand mark at extreme scale
+### Text-Only Nav Link
+**Role:** Unbordered link in the main navigation
 
-Hyer® set at 131px weight 700, letter-spacing -2.62px, #000d10, paired with a small ® superscript at ~30% scale. Sits flush-left of the hero viewport.
+Transparent background, 0px radius, 10.4px vertical padding, text in #475467 (muted steel). Underline appears on hover. This is the lightest-weight interactive in the system — quiet enough to recede into the nav bar.
 
-### Hero Headline
-**Role:** Primary hero statement
+### Frosted Nav Bar
+**Role:** Sticky top navigation with backdrop blur
 
-60-63px weight 700, letter-spacing -1.26px, #000d10, line-height 1.0. Two-line blocks like 'Beyond / Travel.' with the period as a deliberate typographic stop.
+Fixed top bar, background rgba(51,50,72,0.7) (--nav-bg-color), backdrop-filter: blur(10px), 1px bottom border in #6b6b6b. Brand wordmark on the left in Whyte Inktrap weight 500. Nav items in Whyte Inktrap 12px uppercase with 0.07em tracking. The blur is the design — it lets the atmospheric hero breathe through.
 
-### Section Headline
-**Role:** Content section title
+### Comparison Card
+**Role:** Side-by-side competitive comparison tile
 
-37-52px weight 700, letter-spacing -0.37 to -0.52px, #000d10, four-line blocks max with line-height 1.0. Anchors every white content band.
+19.2px radius, full-bleed gradient or violet bloom background, 40px padding, no border, no shadow. Each card carries a faint oversized number (01–04) behind a small label like 'COMPLEX 15-STEP CONFIGURATION' and a white 'vs. Competitor →' link. The cards are connected by a horizontal line and circular node markers between them, like a flight route.
 
-### Feature Block
-**Role:** Sub-section with title and description
+### Feature Row Card
+**Role:** Single feature block with description and link
 
-Title 23px weight 700 in #000d10, body 18px weight 400 in #8e8e95 with 1.61 line-height, separated from the next block by a 1px #d5d3d4 hairline rule. Arranged in 2-column grids.
+Transparent background, 19.2px radius, no padding. Left: 20px link 'Learn More'. Right: Whyte Inktrap 18px weight 400 body copy. The card IS the row — no visible container, the spacing creates the boundary.
 
-### Dark Content Section
-**Role:** Full-bleed dark band for contrast content
+### Violet Bloom Card
+**Role:** Accent card that breaks the monochrome
 
-Background #0f0f1c or #151623, white heading at 30-37px, white body at 18px, content right-aligned in a single column. Language list with flag emoji is the only chromatic content within.
+Background #af50ff or radial-gradient violet bloom, 19.2px radius, 40px padding. Used sparingly for the 'See how in 140s' play CTA or the 'dope.swg' badge. The violet is rationed to one or two cards per page — when it appears, it should feel like a signal, not a theme.
 
-### Footer Terminal
-**Role:** Page-end navigation and identity
+### Coordinate Footer
+**Role:** Minimal page footer with geographic stamp
 
-Full-bleed #000d10 background, large white wordmark, nav links in #8e8e95 at 20px, multi-column layout with social and legal rows.
+Full-bleed dark band, no background fill, 0px padding. Left: small '+' icon, 'Fly Direct' and 'Secure Web Gateway' labels in Whyte Inktrap 14px. Right: a live-updating GPS coordinate in Whyte Inktrap 14px + a heart icon. This is the signature: the brand writes its footer as if signing a postcard from a city.
 
-### Top Navigation
-**Role:** Primary site navigation
+### Hairline Divider
+**Role:** Section separator with no weight
 
-Transparent over hero, sticky or absolute positioned. Items at 20px weight 400, #000d10 on light, with 13px vertical gap between stacked items in mobile.
+0.5px or 1px solid stroke in #f7f9fa at 10-20% opacity. Replaces shadows and heavy borders everywhere. The system trusts line weight, not depth, to create rhythm.
 
 ## Do's and Don'ts
 
 ### Do
-- Set display headlines at 60-187px weight 700 with letter-spacing between -1.26px and -3.74px — the tightness is what makes the type read as architectural, not decorative.
-- Use #000d10 for all primary text, filled buttons, icon strokes, and footer — treat it as the single structural color of the system.
-- Reserve #bc7155 clay for one featured card per page — the restraint is the point, not the warmth.
-- Use 1000px border-radius on every button and nav pill — no square buttons, no partial rounding, the pill is the action shape.
-- Set body copy at 18px with line-height 29 (1.61 ratio) — the generous leading is what makes the dense editorial layout breathe.
-- Alternate between white canvas sections and #0f0f1c/#151623 dark bands to create vertical contrast — the page should oscillate, not stay flat.
-- End every hero headline with a period — 'Beyond Travel.' is the signature punctuation pattern.
+- Use Signal Violet (#af50ff) only for one feature card glow, one filled action, and one accent stroke per page — treat it as signal lighting, not theme color
+- Set section headings in Whyte Inktrap Mono 74px uppercase with 0.2em tracking; the letterspaced breath is the heading style
+- Default all cards to 19.2px radius and 0 padding internally — let layout create the boundary, not a fill or border
+- Use 1px or 0.5px solid #f7f9fa borders at low opacity for separation instead of shadows or fills
+- Reach for GrandSlang italic at 88–146px for the two or three largest display moments on a page — never for body or nav
+- Use the frosted nav pattern: rgba(51,50,72,0.7) background + backdrop-filter blur(10px) + 1px bottom border
+- End pages with a coordinate stamp footer in Whyte Inktrap 14px — it is the brand's signature closing gesture
 
 ### Don't
-- Don't apply shadows to cards or buttons — the system defines elevation through surface color shifts (white → clay → dark slate), not drop shadows.
-- Don't introduce additional accent hues — the system is monochrome with one warm note; adding green, blue, or any secondary accent breaks the austere editorial voice.
-- Don't use #000d10 in the page background role on white sections — it is the text and button color, not a surface color, on the light canvas.
-- Don't round the featured clay card — it must remain 0px radius to contrast with every pill-shaped element around it.
-- Don't set body type below 18px — the spaciousness of 18/29 is a signature; smaller sizes break the breathing rhythm.
-- Don't use light or thin weights for headlines — weight 700 is non-negotiable from 23px upward; the weight IS the brand voice.
-- Don't place two #bc7155 elements on the same page — the accent is single-use per viewport.
+- Don't apply box-shadows beyond the nav's single 1px hairline — the system is shadowless by design
+- Don't use Signal Violet for borders, text, or body backgrounds — it is reserved for fills and glows only
+- Don't use GrandSlang italic for anything smaller than 32px — the warmth of the brush-italic collapses at small sizes
+- Don't mix Whyte Inktrap Mono with GrandSlang on the same line — the mechanical stamp voice must stay in its own band
+- Don't introduce a new accent color — the palette is 95% achromatic and one violet, adding a third color breaks the system
+- Don't center body copy or use multi-column text layouts — the page rhythm is left-aligned with generous side margins
+- Don't round buttons to 0px or 4px; the system uses 8px for control buttons and 1584px for pill CTAs — those are the only two button radii
 
 ## Surfaces
 
 | Level | Name | Value | Purpose |
 |-------|------|-------|---------|
-| 0 | Canvas White | `#ffffff` | Primary page background across all content sections |
-| 1 | Card White | `#ffffff` | Feature cards and content blocks sitting on canvas |
-| 2 | Featured Clay | `#bc7155` | Highlighted solution card that breaks the monochrome rhythm |
-| 3 | Dark Slate | `#151623` | Full-bleed dark content sections (Travel Support) |
-| 4 | Footer Ink | `#000d10` | Terminal dark band at the base of every page |
+| 0 | Void Canvas | `#090909` | Full-bleed page background — every section sits directly on this |
+| 1 | Translucent Panel | `#333248b3` | Floating nav with backdrop blur — a frosted glass strip pinned to the top |
+| 2 | Iron Wash | `#423738` | Ghost button fills and subtle card washes that need to read as a surface without leaving the void |
+| 3 | Violet Bloom | `#af50ff` | Feature card backgrounds and radial glows — the one place the palette breaks monochrome |
 
 ## Elevation
 
-- **No elevation system detected:** `Cards and buttons rely on surface color contrast and hairline borders, not box-shadow`
+- **Nav Bar:** `rgba(16, 24, 40, 0.05) 0px 1px 2px 0px`
 
 ## Imagery
 
-Photography and 3D renders dominate the visual language, specifically a single hero 3D render of a white private jet with dark accent striping, photographed/rendered against a soft gradient sky transitioning from pale blue at top to warm cream at the horizon. The jet is shown in a three-quarter banking pose, positioned left-of-center to leave room for the wordmark and headline. The render is hyper-clean, product-showcase style — no lifestyle context, no passengers, no airports. The aircraft IS the hero. Additional imagery (when used in content sections) follows the same product-crop logic: tight, isolated, on pure white. Iconography is minimal and always stroke-based in #000d10.
+Photography is treated as a single dramatic hero asset: a wide-format twilight sky with purple and lavender clouds over a glowing horizon, a single airplane light streaking across. The image is not cropped or masked — it fills the full viewport and the text sits directly on it. After the hero, the page goes almost entirely iconographic: no product screenshots, no lifestyle photos, no stock imagery. The comparison section uses soft radial gradient blooms (blue, pink, purple) as card backgrounds, acting as abstract color studies rather than literal images. Icons are minimal line glyphs (heart, +, arrow) drawn in #f7f9fa. The overall ratio is text-and-rule dominant: imagery occupies less than 15% of the page.
 
 ## Layout
 
-Full-bleed sections that alternate between pale sky-tinged hero, white content bands, and dark midnight sections. The hero is the only asymmetric composition: wordmark flush-left at extreme scale, a right-side two-line headline, and the 3D jet floating in the lower-center negative space. Content sections are right-aligned single-column (heading + 2×2 feature grid) on white, creating strong rightward gravity. Navigation is a single transparent row at the top with three text links and a circular menu button. Footer is a full-bleed dark terminal with large wordmark. Vertical rhythm is set by 80px section gaps with no visible dividers between most bands — the color shift itself separates them.
+Full-bleed sections with a 1200px content max-width centered inside. The hero is a split composition: roughly 55/45 text-to-card, with a transparent boarding-pass card overlaying the right side of the atmospheric photograph. Below the hero, the system shifts to edge-to-edge dark bands with no visual dividers between them — rhythm comes from generous sectionGap (~120px) and the stamped 74px section labels. The 'Features' section uses a stacked monospace heading above a list of rows; the comparison block uses a 4-column card grid connected by a horizontal route line. Navigation is a single sticky frosted bar with brand left, links center, two buttons right. Density is comfortable — every section breathes. The page never uses multi-column text or card grids denser than 4 across.
 
 ## Agent Prompt Guide
 
 **Quick Color Reference**
-- text: #000d10
-- background: #ffffff
-- border: #d5d3d4
-- accent: #bc7155 (featured card only)
-- primary action: #bc7155 (filled action)
-- dark surface: #0f0f1c / #151623
-- muted text: #8e8e95
+- text: #f7f9fa
+- background: #090909
+- border: rgba(247,249,250,0.2)
+- accent / brand signal: #af50ff
+- muted text: #828384
+- primary action: #af50ff (filled action)
 
 **Example Component Prompts**
 
-1. Create a Primary Action Button: #bc7155 background, #ffffff text, 9999px radius, compact pill padding. Use this filled treatment for the main CTA.
+1. *Stamped Section Heading:* Render 'SSL INSPECTION' as a single line in Whyte Inktrap Mono, 74px, weight 400, uppercase, letter-spacing 0.2em, color #f0f0f0, on a #090909 background. No underline, no decoration.
 
-2. Create a featured solution card: background #bc7155, text #ffffff, border-radius 0px, padding 53px 59px, title at 37px weight 700, description at 18px weight 400 line-height 29. This is the only warm block in the system — use it once per page for one highlighted offering.
+2. *Hero Boarding Pass Card:* Create a right-aligned card on the hero, 19.2px radius, background rgba(237,195,196,0.05), 1px solid rgba(247,249,250,0.2) border, 40px padding. Inside: a small icon + 'Boarding Pass' label in Whyte Inktrap 12px uppercase, an 'ORIGIN LEGACY → DESTINATION DS' line in 14px, a Whyte Inktrap 32px heading 'Deploys on device in minutes', and two pill buttons (1584px radius, 20px 32px padding, white text, faint pink wash background) reading 'Try now with Google' and 'Try now with Microsoft'.
 
-3. Create a hero section: pale blue-to-cream gradient sky background, wordmark 'Hyer®' at 131px weight 700 letter-spacing -2.62px in #000d10 flush-left, headline 'Beyond Travel.' at 60px weight 700 in #000d10 right-aligned, 3D white jet render floating center-low, ghost pill button bottom-right with white border on transparent background.
+3. *Filled Action Button:* Build a 8px-radius button with #090909 background, 1px solid #f7f9fa border, 16px padding, white 'Book a Demo' text in Whyte Inktrap 16px weight 400.
 
-4. Create a feature block grid: 2-column layout on white canvas, each block has a 1px solid #d5d3d4 hairline above the title, title at 23px weight 700 in #000d10, body at 18px weight 400 in #8e8e95 with line-height 29. Gap between columns 80px.
+4. *Violet Bloom Feature Card:* A 19.2px-radius card filled with #af50ff, 40px padding, containing Whyte Inktrap 32px weight 400 white heading 'dope.swg' and a 14px body line. One per page maximum.
 
-5. Create a dark content section: full-bleed background #0f0f1c, right-aligned content column at ~50% width, heading at 37px weight 700 in #ffffff, body at 18px weight 400 in #ffffff with line-height 29. Use this for support, contact, or contrast content that needs to feel terminal.
+5. *Coordinate Footer:* A full-width band on #090909 with a '+' icon, 'Fly Direct' and 'Secure Web Gateway' labels in Whyte Inktrap 14px on the left, a live GPS coordinate in 14px on the right, and a small heart icon in #f7f9fa.
 
 ## Similar Brands
 
-- **VistaJet** — Same private aviation editorial language: full-bleed dark sections, enormous serif-adjacent display type, and a near-monochrome palette with a single warm accent for featured offerings
-- **NetJets** — Luxury aviation brand using 3D aircraft renders on gradient sky backgrounds with ultra-tight letter-spacing on display headlines and pill-shaped CTAs
-- **Blade** — Urban aviation startup sharing the same editorial-meets-product tension: stark white canvas, massive bold display headlines, and a single accent color for featured service cards
-- **Rimowa** — Premium travel brand with the same typographic confidence — oversized bold headlines, monochrome body sections, and the discipline to use accent color only once per page
-- **Sonos** — Product-hero photography on pale atmospheric backgrounds, 100% pill buttons, and the same editorial restraint of letting one object carry the visual weight of a page
+- **Linear** — Same dark monochrome canvas with a single saturated accent color rationed across the interface
+- **Vercel** — Identical shadowless discipline — flat surfaces, hairline borders, generous dark space — paired with a minimal typographic system
+- **Arc Browser** — Same editorial display serif + geometric sans pairing, same luxury-product restraint on a dark canvas
+- **Stripe Press** — Same boarding-pass / travel-coded editorial language, same extreme letter-spacing on uppercase stamps
+- **Nothing.tech** — Same dot-matrix mono typography and inktrap geometric sans, same monochrome-with-one-glow color strategy
 
 ## Quick Start
 
@@ -234,91 +262,104 @@ Full-bleed sections that alternate between pale sky-tinged hero, white content b
 ```css
 :root {
   /* Colors */
-  --color-deep-ink: #000d10;
-  --color-pure-white: #ffffff;
-  --color-cool-ash: #8e8e95;
-  --color-pebble: #d5d3d4;
-  --color-midnight-hull: #0f0f1c;
-  --color-charcoal-deck: #151623;
-  --color-clay-ember: #bc7155;
+  --color-near-black: #090909;
+  --color-almost-white: #f7f9fa;
+  --color-soft-white: #f0f0f0;
+  --color-steel: #828384;
+  --color-graphite: #474747;
+  --color-iron: #423738;
+  --color-ash: #6b6b6b;
+  --color-signal-violet: #af50ff;
+  --color-lavender-mist: #e1bdff;
 
   /* Typography — Font Families */
-  --font-helveticanowdisplay: 'HelveticaNowDisplay', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-sans-serif: 'sans-serif', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-whyte-inktrap: 'Whyte Inktrap', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-whyte-inktrap-mono: 'Whyte Inktrap Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-grandslang: 'GrandSlang', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-system-ui: 'system-ui', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-karla: 'Karla', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   /* Typography — Scale */
-  --text-caption: 17px;
-  --leading-caption: 17;
-  --text-nav: 20px;
-  --leading-nav: 20;
-  --text-subheading: 23px;
-  --leading-subheading: 23;
-  --tracking-subheading: -0.23px;
-  --text-heading-sm: 30px;
-  --leading-heading-sm: 30;
-  --text-heading: 37px;
-  --leading-heading: 37;
-  --tracking-heading: -0.37px;
-  --text-heading-lg: 52px;
-  --leading-heading-lg: 52;
-  --tracking-heading-lg: -0.52px;
-  --text-display: 63px;
-  --leading-display: 63;
-  --tracking-display: -1.26px;
-  --text-display-xl: 131px;
-  --leading-display-xl: 131;
-  --tracking-display-xl: -2.62px;
-  --text-hero: 187px;
-  --leading-hero: 150;
-  --tracking-hero: -3.74px;
+  --text-caption: 10px;
+  --leading-caption: 1;
+  --tracking-caption: 1.8px;
+  --text-body-sm: 14px;
+  --leading-body-sm: 1.5;
+  --text-body: 16px;
+  --leading-body: 1.5;
+  --text-subheading: 20px;
+  --leading-subheading: 1;
+  --tracking-subheading: -0.2px;
+  --text-heading-sm: 32px;
+  --leading-heading-sm: 1.2;
+  --tracking-heading-sm: -0.32px;
+  --text-heading: 48px;
+  --leading-heading: 1.2;
+  --tracking-heading: -0.48px;
+  --text-heading-lg: 64px;
+  --leading-heading-lg: 1.2;
+  --tracking-heading-lg: -0.64px;
+  --text-section-stamp: 74px;
+  --leading-section-stamp: 0.9;
+  --tracking-section-stamp: 14.8px;
+  --text-display: 88px;
+  --leading-display: 0.8;
+  --tracking-display: -2.64px;
 
   /* Typography — Weights */
+  --font-weight-light: 300;
   --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
   /* Spacing */
   --spacing-unit: 4px;
-  --spacing-11: 11px;
-  --spacing-13: 13px;
-  --spacing-15: 15px;
+  --spacing-4: 4px;
+  --spacing-8: 8px;
+  --spacing-12: 12px;
   --spacing-16: 16px;
-  --spacing-17: 17px;
-  --spacing-21: 21px;
-  --spacing-22: 22px;
-  --spacing-23: 23px;
-  --spacing-31: 31px;
-  --spacing-34: 34px;
-  --spacing-38: 38px;
-  --spacing-52: 52px;
-  --spacing-53: 53px;
-  --spacing-59: 59px;
-  --spacing-68: 68px;
-  --spacing-119: 119px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-64: 64px;
+  --spacing-72: 72px;
+  --spacing-80: 80px;
+  --spacing-96: 96px;
+  --spacing-128: 128px;
+  --spacing-136: 136px;
+  --spacing-160: 160px;
 
   /* Layout */
   --page-max-width: 1200px;
-  --section-gap: 80px;
-  --card-padding: 22px;
+  --section-gap: 120px;
+  --card-padding: 40px;
   --element-gap: 16px;
 
   /* Border Radius */
-  --radius-3xl: 45px;
-  --radius-full: 1000px;
-  --radius-full-2: 9999px;
+  --radius-lg: 8px;
+  --radius-lg-2: 10.8px;
+  --radius-2xl: 19.2px;
+  --radius-full: 99px;
+  --radius-full-2: 1584px;
+  --radius-full-3: 10000px;
 
   /* Named Radii */
-  --radius-nav: 1000px;
-  --radius-buttons: 1000px;
-  --radius-decorative: 45px;
-  --radius-heropanels: 0px;
-  --radius-iconbuttons: 100%;
+  --radius-cards: 19.2px;
+  --radius-pills: 1584px;
+  --radius-buttons: 8px;
+  --radius-smallcontrols: 6px;
+
+  /* Shadows */
+  --shadow-subtle: rgba(16, 24, 40, 0.05) 0px 1px 2px 0px;
 
   /* Surfaces */
-  --surface-canvas-white: #ffffff;
-  --surface-card-white: #ffffff;
-  --surface-featured-clay: #bc7155;
-  --surface-dark-slate: #151623;
-  --surface-footer-ink: #000d10;
+  --surface-void-canvas: #090909;
+  --surface-translucent-panel: #333248b3;
+  --surface-iron-wash: #423738;
+  --surface-violet-bloom: #af50ff;
 }
 ```
 
@@ -327,65 +368,77 @@ Full-bleed sections that alternate between pale sky-tinged hero, white content b
 ```css
 @theme {
   /* Colors */
-  --color-deep-ink: #000d10;
-  --color-pure-white: #ffffff;
-  --color-cool-ash: #8e8e95;
-  --color-pebble: #d5d3d4;
-  --color-midnight-hull: #0f0f1c;
-  --color-charcoal-deck: #151623;
-  --color-clay-ember: #bc7155;
+  --color-near-black: #090909;
+  --color-almost-white: #f7f9fa;
+  --color-soft-white: #f0f0f0;
+  --color-steel: #828384;
+  --color-graphite: #474747;
+  --color-iron: #423738;
+  --color-ash: #6b6b6b;
+  --color-signal-violet: #af50ff;
+  --color-lavender-mist: #e1bdff;
 
   /* Typography */
-  --font-helveticanowdisplay: 'HelveticaNowDisplay', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-sans-serif: 'sans-serif', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-whyte-inktrap: 'Whyte Inktrap', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-whyte-inktrap-mono: 'Whyte Inktrap Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-grandslang: 'GrandSlang', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-system-ui: 'system-ui', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-karla: 'Karla', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   /* Typography — Scale */
-  --text-caption: 17px;
-  --leading-caption: 17;
-  --text-nav: 20px;
-  --leading-nav: 20;
-  --text-subheading: 23px;
-  --leading-subheading: 23;
-  --tracking-subheading: -0.23px;
-  --text-heading-sm: 30px;
-  --leading-heading-sm: 30;
-  --text-heading: 37px;
-  --leading-heading: 37;
-  --tracking-heading: -0.37px;
-  --text-heading-lg: 52px;
-  --leading-heading-lg: 52;
-  --tracking-heading-lg: -0.52px;
-  --text-display: 63px;
-  --leading-display: 63;
-  --tracking-display: -1.26px;
-  --text-display-xl: 131px;
-  --leading-display-xl: 131;
-  --tracking-display-xl: -2.62px;
-  --text-hero: 187px;
-  --leading-hero: 150;
-  --tracking-hero: -3.74px;
+  --text-caption: 10px;
+  --leading-caption: 1;
+  --tracking-caption: 1.8px;
+  --text-body-sm: 14px;
+  --leading-body-sm: 1.5;
+  --text-body: 16px;
+  --leading-body: 1.5;
+  --text-subheading: 20px;
+  --leading-subheading: 1;
+  --tracking-subheading: -0.2px;
+  --text-heading-sm: 32px;
+  --leading-heading-sm: 1.2;
+  --tracking-heading-sm: -0.32px;
+  --text-heading: 48px;
+  --leading-heading: 1.2;
+  --tracking-heading: -0.48px;
+  --text-heading-lg: 64px;
+  --leading-heading-lg: 1.2;
+  --tracking-heading-lg: -0.64px;
+  --text-section-stamp: 74px;
+  --leading-section-stamp: 0.9;
+  --tracking-section-stamp: 14.8px;
+  --text-display: 88px;
+  --leading-display: 0.8;
+  --tracking-display: -2.64px;
 
   /* Spacing */
-  --spacing-11: 11px;
-  --spacing-13: 13px;
-  --spacing-15: 15px;
+  --spacing-4: 4px;
+  --spacing-8: 8px;
+  --spacing-12: 12px;
   --spacing-16: 16px;
-  --spacing-17: 17px;
-  --spacing-21: 21px;
-  --spacing-22: 22px;
-  --spacing-23: 23px;
-  --spacing-31: 31px;
-  --spacing-34: 34px;
-  --spacing-38: 38px;
-  --spacing-52: 52px;
-  --spacing-53: 53px;
-  --spacing-59: 59px;
-  --spacing-68: 68px;
-  --spacing-119: 119px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-64: 64px;
+  --spacing-72: 72px;
+  --spacing-80: 80px;
+  --spacing-96: 96px;
+  --spacing-128: 128px;
+  --spacing-136: 136px;
+  --spacing-160: 160px;
 
   /* Border Radius */
-  --radius-3xl: 45px;
-  --radius-full: 1000px;
-  --radius-full-2: 9999px;
+  --radius-lg: 8px;
+  --radius-lg-2: 10.8px;
+  --radius-2xl: 19.2px;
+  --radius-full: 99px;
+  --radius-full-2: 1584px;
+  --radius-full-3: 10000px;
+
+  /* Shadows */
+  --shadow-subtle: rgba(16, 24, 40, 0.05) 0px 1px 2px 0px;
 }
 ```
