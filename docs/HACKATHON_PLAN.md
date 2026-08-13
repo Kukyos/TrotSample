@@ -42,8 +42,15 @@ services layer gives the same separation with none of the plumbing.
 
 **Praneet's backend scope** — decided as: Supabase schema + RLS + seed + a
 `src/services/` query layer in the repo + SQL functions for any real
-aggregation logic. Schema-and-RLS alone leaves nothing in the repo to point at when a judge asks to see the backend. Edge Functions skipped — deploy friction,
-no visible gain.
+aggregation logic. Schema-and-RLS alone leaves nothing in the repo to point at when a judge asks to see the backend.
+
+**Edge Functions were reinstated in Run 1.** They were originally skipped for
+deploy friction, but third-party place search needs a server-side holder for the
+Foursquare service key — shipping it to the browser would expose it. The
+`search-places` function runs with `verify_jwt = true` and the frontend reaches
+it through `services/places.ts`. The cost is real: the function and its secret
+must be deployed to Supabase separately from the Vercel build, so a green Vercel
+deploy no longer implies a working place search.
 
 ---
 

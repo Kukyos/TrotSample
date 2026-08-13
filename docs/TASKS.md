@@ -82,6 +82,36 @@ Decisions locked with Armaan before implementation:
 - [ ] Replace each `fixtures/` import with a documented service function once
   trip, city, and activity services are added to `docs/SERVICES.md`.
 
+## End-to-end UI pass
+
+Owner: Armaan
+
+Every screen was driven through its real event handlers in a browser using the
+dev-only harness at `frontend/uitest.html` (`npm run dev` → `/uitest.html`). The
+harness mounts the real routes with a stubbed auth context so the screens can be
+used before Supabase credentials exist. It is the browser twin of `smoke.tsx`,
+touches nothing in `src/auth`, issues no queries, and is excluded from the
+production build — `vite build` emits only `index.html`.
+
+Passing: every form validation path, stop and item reordering with correct
+disabled ends, add and remove with totals recomputing, all filters, tabs, sorts,
+empty states, month navigation, the budget donut and its table fallback, and
+zero horizontal overflow on every screen at 386px with the dock docking to the
+bottom.
+
+Open issues found:
+
+- [ ] Trip budget sort compares raw numbers across currencies, so JP¥420,000
+  ranks above €5,000. Needs a conversion rate or per-currency sorting.
+- [ ] The itinerary builder shows time of day with no date, so a stop spanning
+  several days reads as out of order. The itinerary view groups by day; the
+  builder does not.
+- [ ] The profile counts upcoming trips in "Cities visited".
+- [ ] Builder edits are lost when navigating away and back, which reads as a bug
+  during a demo even though it is the documented session-only behaviour.
+- [ ] A missing Supabase configuration surfaces its internal setup message in the
+  login form and now in place search. Needs a user-facing fallback.
+
 Known gaps, deliberate:
 
 - `/admin` has no role check, so it is kept out of the primary navigation and is
