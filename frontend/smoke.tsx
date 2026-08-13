@@ -35,11 +35,12 @@ const render = (route: string, auth: AuthContextValue) =>
     </AuthContext.Provider>,
   )
 
-type Case = { route: string; name: string; expect?: string[] }
+type Case = { route: string; name: string; expect?: string[]; auth?: AuthContextValue }
 
 const CASES: Case[] = [
-  { route: '/', name: 'landing', expect: ['GLOBE'] },
-  { route: '/dashboard', name: 'dashboard', expect: ['Europe Loop', 'CONTINUE PLANNING'] },
+  // `/` is the whole home: the pitch when anonymous, your trips when signed in.
+  { route: '/', name: 'landing', expect: ['Why GlobeTrotter', 'Start planning'], auth: anonymous },
+  { route: '/', name: 'home-signed-in', expect: ['Where next', 'Europe Loop', 'CONTINUE PLANNING'] },
   { route: '/trips', name: 'trips', expect: ['Ongoing', 'Upcoming'] },
   { route: '/trips/new', name: 'create-trip', expect: ['Add another section'] },
   {
@@ -84,7 +85,7 @@ const rendered: { name: string; route: string }[] = []
 for (const testCase of CASES) {
   let html = ''
   try {
-    html = render(testCase.route, authenticated)
+    html = render(testCase.route, testCase.auth ?? authenticated)
   } catch (error) {
     fail(`${testCase.route} threw: ${error instanceof Error ? error.message : String(error)}`)
     continue
@@ -108,10 +109,20 @@ for (const testCase of CASES) {
   console.log(`  ok    ${testCase.route.padEnd(34)} ${html.length} chars`)
 }
 
+// /dashboard is a <Navigate> to `/`. renderToString cannot run the effect that
+// performs it, so the redirect is verified in the browser, not here. What this
+// can prove is that the route no longer renders a screen of its own.
+if (render('/dashboard', authenticated).includes('CONTINUE PLANNING')) {
+  fail('/dashboard still renders its own dashboard screen')
+} else {
+  console.log('  ok    /dashboard owns no screen of its own')
+}
+
 // The guard must bounce anonymous visitors off every protected route.
 for (const route of ['/dashboard', '/trips', '/trips/new', '/explore', '/calendar', '/community', '/profile', '/admin']) {
   const html = render(route, anonymous)
-  if (html.includes('app-dock')) fail(`guard leaked ${route} to an anonymous visitor`)
+  // is-signout only renders for an authenticated viewer, so it proves the leak.
+  if (html.includes('is-signout')) fail(`guard leaked ${route} to an anonymous visitor`)
 }
 if (failures === 0) console.log('  ok    guard blocks all protected routes when anonymous')
 

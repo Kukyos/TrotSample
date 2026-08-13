@@ -4,7 +4,6 @@ import { useAuth } from './auth/auth-context'
 import { AppShell } from './components/layout/AppShell'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { LoginPage } from './pages/LoginPage'
-import { DashboardPage } from './pages/DashboardPage'
 import { MyTripsPage } from './pages/MyTripsPage'
 import { CreateTripPage } from './pages/CreateTripPage'
 import { BuildItineraryPage } from './pages/BuildItineraryPage'
@@ -20,12 +19,15 @@ export function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/" element={<LandingPage authStatus={status} viewer={viewer} />} />
       <Route path="/login" element={<LoginPage />} />
 
-      <Route element={<ProtectedRoute />}>
-        <Route element={<AppShell />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
+      <Route element={<AppShell />}>
+        <Route path="/" element={<LandingPage authStatus={status} viewer={viewer} />} />
+
+        <Route element={<ProtectedRoute />}>
+          {/* The signed-in home is `/` itself. Kept as a redirect so the
+              /dashboard links in docs/AUTH.md still resolve. */}
+          <Route path="/dashboard" element={<Navigate to="/" replace />} />
           <Route path="/trips" element={<MyTripsPage />} />
           <Route path="/trips/new" element={<CreateTripPage />} />
           <Route path="/trips/:tripId" element={<ItineraryViewPage />} />

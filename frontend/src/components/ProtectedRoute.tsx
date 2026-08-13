@@ -10,10 +10,10 @@ export function ProtectedRoute() {
 
   if (status === 'loading') {
     return (
-      <main className="auth-state" role="status">
+      <div className="auth-state" role="status">
         <span className="session-dot" aria-hidden="true" />
         Checking your session…
-      </main>
+      </div>
     )
   }
 

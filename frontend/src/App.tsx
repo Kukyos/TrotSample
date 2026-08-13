@@ -1,6 +1,15 @@
-import { Link } from 'react-router-dom'
+import { useState, type FormEvent } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import type { AuthStatus } from './auth/auth-context'
 import type { AuthViewer } from './services/auth'
+import { TripRail } from './components/ui/TripRail'
+import { Reveal, Spotlight } from './components/ui/motion'
+import SplitText from './components/reactbits/SplitText'
+import ShinyText from './components/reactbits/ShinyText'
+import ScrollVelocity from './components/reactbits/ScrollVelocity'
+import { cities } from './fixtures/catalog'
+import { trips } from './fixtures/trips'
+import { tripPhase } from './lib/trip'
 
 type LandingPageProps = {
   authStatus?: AuthStatus
@@ -39,63 +48,6 @@ const features = [
     body: 'Share one clean plan instead of another trail of links and screenshots.',
   },
 ]
-
-function SessionAction({ authStatus, viewer }: Required<LandingPageProps>) {
-  if (authStatus === 'loading') {
-    return (
-      <span className="session-action is-loading" role="status">
-        <span className="session-dot" aria-hidden="true" />
-        Checking session
-      </span>
-    )
-  }
-
-  if (authStatus === 'authenticated') {
-    const identity = viewer?.displayName || viewer?.email || 'Your account'
-
-    return (
-      <Link className="session-action is-authenticated" to="/dashboard">
-        <span className="session-dot" aria-hidden="true" />
-        <span className="session-identity">{identity}</span>
-        <span aria-hidden="true">&#8599;</span>
-      </Link>
-    )
-  }
-
-  return (
-    <Link className="session-action" to="/login">
-      Log in <span aria-hidden="true">&#8599;</span>
-    </Link>
-  )
-}
-
-function Header(props: Required<LandingPageProps>) {
-  return (
-    <header className="site-header">
-      <a className="wordmark" href="#top" aria-label="GlobeTrotter home">
-        GLOBE<span>/</span>TROTTER
-      </a>
-
-      <nav className="desktop-nav" aria-label="Primary navigation">
-        <a href="#why">Why GlobeTrotter</a>
-        <a href="#inside">Inside the plan</a>
-      </nav>
-
-      <div className="desktop-session">
-        <SessionAction {...props} />
-      </div>
-
-      <details className="mobile-menu">
-        <summary aria-label="Open navigation">Menu</summary>
-        <nav aria-label="Mobile navigation">
-          <a href="#why">Why GlobeTrotter</a>
-          <a href="#inside">Inside the plan</a>
-          <SessionAction {...props} />
-        </nav>
-      </details>
-    </header>
-  )
-}
 
 function TripPass() {
   return (
@@ -151,32 +103,76 @@ function TripPass() {
   )
 }
 
-function Hero(props: Required<LandingPageProps>) {
+/** A single hero headline line. Each line is its own SplitText so the serif and
+ *  sans runs keep their own class, which one shared instance could not do.
+ *  `stagger` is SplitText's per-character delay in ms. */
+function HeroLine({ text, className = '', stagger = 18 }: { text: string; className?: string; stagger?: number }) {
+  return (
+    <SplitText
+      tag="span"
+      text={text}
+      className={`hero-line ${className}`}
+      splitType="chars"
+      delay={stagger}
+      duration={0.9}
+      from={{ opacity: 0, y: 64, rotateX: -40 }}
+      to={{ opacity: 1, y: 0, rotateX: 0 }}
+      threshold={0.05}
+      rootMargin="0px"
+      textAlign="left"
+    />
+  )
+}
+
+function Hero({ authStatus, viewer }: Required<LandingPageProps>) {
+  const authenticated = authStatus === 'authenticated'
+  const firstName = (viewer?.displayName || viewer?.email || '').split(' ')[0]
+
   return (
     <section className="hero" id="top">
-      <Header {...props} />
       <div className="hero-atmosphere" aria-hidden="true" />
 
       <div className="hero-content">
         <div className="hero-copy">
-          <p className="hero-kicker">MULTI-CITY TRAVEL / ONE CLEAR PLAN</p>
+          <p className="hero-kicker">
+            <ShinyText
+              text={authenticated ? 'WELCOME BACK / YOUR TRIPS ARE WAITING' : 'MULTI-CITY TRAVEL / ONE CLEAR PLAN'}
+              color="#8f8b92"
+              shineColor="#e1bdff"
+              speed={4}
+            />
+          </p>
           <h1>
-            <span className="display-italic">Your next</span>
-            <span>great journey,</span>
-            <span className="display-italic display-indent">all in one place.</span>
+            {authenticated ? (
+              <>
+                <HeroLine className="display-italic" text="Where next," />
+                <HeroLine className="display-indent" text={`${firstName || 'traveller'}?`} />
+              </>
+            ) : (
+              <>
+                <HeroLine className="display-italic" text="Your next" />
+                <HeroLine text="great journey," />
+                <HeroLine className="display-italic display-indent" text="all in one place." />
+              </>
+            )}
           </h1>
           <div className="hero-bottom">
             <p>
-              Route the cities. Shape the days. Keep the cost in sight. GlobeTrotter
-              turns a scattered travel idea into a trip ready to take.
+              {authenticated
+                ? 'Pick up a route you started, or begin something new. Everything stays connected — stops, days, and what it costs.'
+                : 'Route the cities. Shape the days. Keep the cost in sight. GlobeTrotter turns a scattered travel idea into a trip ready to take.'}
             </p>
             <div className="hero-actions">
-              <Link className="button button-primary" to="/login">
-                Start planning <span aria-hidden="true">&#8599;</span>
+              <Link className="button button-primary" to={authenticated ? '/trips/new' : '/login'}>
+                {authenticated ? 'Plan a trip' : 'Start planning'} <span aria-hidden="true">&#8599;</span>
               </Link>
-              <a className="text-link" href="#why">See the journey &#8595;</a>
+              <a className="text-link" href={authenticated ? '#continue' : '#why'}>
+                {authenticated ? 'Continue planning' : 'See the journey'} &#8595;
+              </a>
             </div>
           </div>
+
+          {authenticated && <HeroSearch />}
         </div>
 
         <TripPass />
@@ -187,13 +183,101 @@ function Hero(props: Required<LandingPageProps>) {
   )
 }
 
+function HeroSearch() {
+  const navigate = useNavigate()
+  const [query, setQuery] = useState('')
+
+  const handleSearch = (event: FormEvent) => {
+    event.preventDefault()
+    navigate(query.trim() ? `/explore?q=${encodeURIComponent(query.trim())}` : '/explore')
+  }
+
+  return (
+    <form className="dash-search" onSubmit={handleSearch} role="search">
+      <label className="visually-hidden" htmlFor="hero-search-input">
+        Search cities and activities
+      </label>
+      <input
+        id="hero-search-input"
+        type="search"
+        placeholder="Search a city or an activity"
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+      />
+      <button type="submit">Search <span aria-hidden="true">&#8594;</span></button>
+    </form>
+  )
+}
+
+/** Everything below the hero once you are signed in. This is the dashboard —
+ *  there is no separate `/dashboard` screen, only this page in its logged-in
+ *  state, which is why `/dashboard` redirects here. */
+function SignedInHome() {
+  const active = trips.filter((trip) => tripPhase(trip) !== 'completed').slice(0, 3)
+  const topRegional = [...cities].sort((a, b) => b.popularity_score - a.popularity_score).slice(0, 6)
+
+  return (
+    <>
+      <section className="landing-continue section-shell" id="continue" aria-labelledby="home-continue">
+        <div className="section-stamp">
+          <span id="home-continue">CONTINUE PLANNING</span>
+          <span>{active.length} ACTIVE</span>
+        </div>
+
+        {active.length === 0 ? (
+          <div className="empty-state">
+            <p>No active trips yet.</p>
+            <Link className="button button-primary" to="/trips/new">Start your first trip</Link>
+          </div>
+        ) : (
+          <>
+            <TripRail trips={active} />
+            <Link className="arrow-link" to="/trips">SEE ALL YOUR TRIPS <span>&#8594;</span></Link>
+          </>
+        )}
+      </section>
+
+      <section className="landing-continue section-shell" aria-labelledby="home-regional">
+        <div className="section-stamp">
+          <span id="home-regional">TOP REGIONAL SELECTIONS</span>
+          <span>BY POPULARITY</span>
+        </div>
+
+        <ul className="city-grid">
+          {topRegional.map((city, index) => (
+            <li key={city.id}>
+              <Reveal delay={index * 0.06}>
+                <Spotlight>
+                  <Link className="city-card" to={`/explore?q=${encodeURIComponent(city.name)}`}>
+                    <span className="city-code">{city.country_code}</span>
+                    <h3>{city.name}</h3>
+                    <p>{city.description}</p>
+                    <span className="city-meta">
+                      {city.region} · cost index {city.cost_index?.toFixed(1) ?? '—'}
+                    </span>
+                  </Link>
+                </Spotlight>
+              </Reveal>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </>
+  )
+}
+
+const SIGNALS = ['PLAN', 'ROUTE', 'BUDGET', 'SHARE', 'STAY', 'SPLIT', 'SHIP IT']
+
 function SignalStrip() {
   return (
     <div className="signal-strip" aria-label="Plan, route, budget, and share">
-      <span>PLAN</span><i />
-      <span>ROUTE</span><i />
-      <span>BUDGET</span><i />
-      <span>SHARE</span>
+      <ScrollVelocity
+        texts={[SIGNALS.join('  ·  ')]}
+        velocity={38}
+        damping={48}
+        stiffness={340}
+        className="signal-word"
+      />
     </div>
   )
 }
@@ -232,14 +316,16 @@ function FeatureSystem() {
       </div>
 
       <div className="feature-list">
-        {features.map((feature) => (
-          <article className="feature-row" key={feature.number}>
-            <span className="feature-number">{feature.number}</span>
-            <span className="feature-label">{feature.label}</span>
-            <h3>{feature.title}</h3>
-            <p>{feature.body}</p>
-            <span className="feature-arrow" aria-hidden="true">&#8599;</span>
-          </article>
+        {features.map((feature, index) => (
+          <Reveal key={feature.number} delay={index * 0.08}>
+            <article className="feature-row">
+              <span className="feature-number">{feature.number}</span>
+              <span className="feature-label">{feature.label}</span>
+              <h3>{feature.title}</h3>
+              <p>{feature.body}</p>
+              <span className="feature-arrow" aria-hidden="true">&#8599;</span>
+            </article>
+          </Reveal>
         ))}
       </div>
     </section>
@@ -285,9 +371,7 @@ function JourneyPanel() {
   )
 }
 
-function FinalCall({ authStatus }: Pick<Required<LandingPageProps>, 'authStatus'>) {
-  const isAuthenticated = authStatus === 'authenticated'
-
+function FinalCall() {
   return (
     <section className="final-call section-shell">
       <p className="final-mark" aria-hidden="true">GT</p>
@@ -298,8 +382,8 @@ function FinalCall({ authStatus }: Pick<Required<LandingPageProps>, 'authStatus'
           <span className="display-italic">Plan clearer.</span>
         </h2>
       </div>
-      <Link className="button button-light" to={isAuthenticated ? '/dashboard' : '/login'}>
-        {isAuthenticated ? 'Open your trips' : 'Start your first trip'} <span aria-hidden="true">&#8599;</span>
+      <Link className="button button-light" to="/login">
+        Start your first trip <span aria-hidden="true">&#8599;</span>
       </Link>
     </section>
   )
@@ -327,15 +411,21 @@ export function LandingPage({
   const authProps = { authStatus, viewer }
 
   return (
-    <main data-auth-state={authStatus}>
+    <div className="landing" data-auth-state={authStatus}>
       <Hero {...authProps} />
       <SignalStrip />
-      <WhyGlobeTrotter />
-      <FeatureSystem />
-      <JourneyPanel />
-      <FinalCall authStatus={authStatus} />
+      {authStatus === 'authenticated' ? (
+        <SignedInHome />
+      ) : (
+        <>
+          <WhyGlobeTrotter />
+          <FeatureSystem />
+          <JourneyPanel />
+          <FinalCall />
+        </>
+      )}
       <Footer />
-    </main>
+    </div>
   )
 }
 

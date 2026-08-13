@@ -184,3 +184,60 @@ Owner: Armaan
 - [ ] Resolve router and auth-provider wiring without bypassing the service boundary.
 - [ ] Verify anonymous, loading, authenticated, logout, refresh, and deep-link flows.
 - [ ] Confirm the production Vercel build and preview URL.
+
+## Visual pass — one shell, real fonts, motion
+
+Owner: Armaan
+
+Done:
+
+- [x] Wired the fonts `docs/DESIGN.md` has always specified. The stack was
+  falling back to Arial and Times: Whyte Inktrap → **Inter Tight**, GrandSlang →
+  **Instrument Serif** italic, Whyte Mono → **JetBrains Mono**, loaded from
+  Google Fonts in `frontend/index.html`.
+- [x] Collapsed the two headers into one. The landing `.site-header` is now the
+  header on every screen, rendered by `AppShell`; only its links and session
+  slot change with auth state. The floating `.app-dock` and all its CSS are
+  deleted.
+- [x] Merged the dashboard into the landing page. `/` is the whole home: the
+  pitch when anonymous, and when signed in a personalised hero, trip search,
+  "Continue planning" rail, and regional selections. `DashboardPage.tsx` is
+  deleted and `/dashboard` is a redirect to `/`, so the links named in
+  `docs/AUTH.md` still resolve. The trip rail lives in `components/ui/TripRail.tsx`.
+- [x] Added depth and motion: a static violet-and-grain wash behind every
+  screen, scroll reveals via `lib/reveal.ts`, a looping signal marquee, card
+  hover lift, and a closing footer rule on app screens.
+- [x] Fixed the status pill stretching to full card width in the trip rail.
+- [x] `ProtectedRoute`'s loading state rendered a second `<main>` inside the
+  shell's `<main>`. Now a `div`.
+
+Two bugs found and fixed during the pass, both worth remembering:
+
+- The reveal hook keyed only on `pathname`, so screens that mount *after* the
+  session resolves were observed before they existed and stayed at `opacity: 0`
+  forever. It now depends on auth status too. `uitest.tsx` cannot catch this
+  class of bug — it stubs `status: 'authenticated'` from the first render, so
+  the loading → authenticated flip never happens.
+- The grain layer had no `background-size`, so `feTurbulence` rasterised at full
+  page height. Every `backdrop-filter` card above it resampled that layer and
+  stalled the compositor hard enough to block IntersectionObserver entirely.
+  Tiling it at 160px fixed it. Watch for this whenever a full-bleed effect layer
+  goes behind the glass cards.
+
+Open issues found:
+
+- [ ] `/login` will not complete a full-page screenshot capture — the compositor
+  stalls. **Reproduces on unmodified `main`**, so it predates this pass; suspect
+  the two large spread `box-shadow` rings on `.auth-intro::after`. Given the
+  grain bug above, this is probably the same class of problem. Confirm whether a
+  real user sees a slow paint before spending time on it.
+- [ ] Fonts come from the Google Fonts CDN. On a flaky demo network the page
+  falls back to Arial and Times. Self-host before relying on it live.
+- [ ] Mobile is unverified. The browser tooling would not resize below ~1500px,
+  so every breakpoint below 820px was reasoned about, not seen. The deleted
+  bottom-dock media query and the `12rem` → `4rem` `.app-main` padding change
+  both need eyes on a real narrow viewport.
+
+Verified: `npm run lint`, `npm run build`, and `npm run smoke` (14 routes) all
+clean. Landing anonymous, signed-in home, `/explore`, and `/trips` reviewed
+running locally at 1440px.
