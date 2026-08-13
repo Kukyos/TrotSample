@@ -97,8 +97,9 @@ creating a runtime dependency on its web service.
 | `image_url` | `text` | Optional owned or licensed image URL |
 | `cost_index` | `numeric(3,2)` | Optional GlobeTrotter value from 1 to 5 |
 
-Unique: normalized city name plus country code, in addition to `geonames_id`.
-City popularity is calculated from trip usage; population is only its cold-start
+`geonames_id` is unique. Normalized name plus country code is indexed but not
+unique because different regions can contain cities with the same name. City
+popularity is calculated from trip usage; population is only its cold-start
 fallback.
 
 ### `activities`
@@ -189,7 +190,7 @@ meals, and custom entries.
 | `kind` | `text` | `transport`, `stay`, `activity`, `meal`, or `other` |
 | `title` | `text` | Required non-blank snapshot |
 | `description` | `text` | Optional snapshot |
-| `starts_at` | `timestamptz` | Required instant |
+| `starts_at` | `timestamptz` | Optional while the trip is a draft; required before it becomes planned |
 | `ends_at` | `timestamptz` | Optional, after `starts_at` |
 | `position` | `integer` | Required positive order within the stop |
 | `estimated_cost` | `numeric(12,2)` | Optional, non-negative, in the trip currency |
@@ -226,8 +227,13 @@ Foursquare directly.
 | Operation | Contract |
 |---|---|
 | `create_trip(input jsonb)` | Authenticated RPC that validates the trip and at least one stop, inserts the trip and ordered stops atomically, and returns the new trip ID. The owner always comes from `auth.uid()`. |
+| `search_city_catalog(query text, limit integer)` | Authenticated, indexed lookup over imported GeoNames city names and regions. |
+| `add_activity_to_stop(stop_id uuid, activity_id bigint)` | Owner-authorized RPC that snapshots a normalized activity into the next unscheduled itinerary position. |
+| `schedule_itinerary_item(...)` | Resolves a city-local date/time through the stored IANA timezone and schedules a draft item inside its stop. |
+| `add_custom_itinerary_item(...)` | Adds a scheduled transport, stay, activity, meal, or custom entry to an owned draft stop. |
 | `reorder_trip_stops(trip_id uuid, ordered_stop_ids uuid[])` | Owner-authorized RPC that requires exactly the trip's current stop IDs, then rewrites positions atomically. |
 | `reorder_itinerary_items(stop_id uuid, ordered_item_ids uuid[])` | Owner-authorized RPC with the same complete-set and atomicity rules for a stop's items. |
+| `finish_trip(trip_id uuid)` | Narrow authenticated RPC that refuses to plan a trip until all stop dates and itinerary schedules are valid. |
 | Trip/stop/item CRUD | Owner-scoped Data API operations for ordinary edits and deletion; catalog-linked activity selection first normalizes the provider record. |
 | `admin_dashboard()` | Admin-only RPC returning registered-user, trip, city, and community counts plus monthly registrations and popular city/activity series. |
 | `admin_search_users(query text)` | Admin-only RPC returning profile ID/name/home city, owned-trip count, join date, and active/dormant status. |
@@ -300,8 +306,9 @@ provider-approved URLs; tables store only paths or URLs.
 
 ### GeoNames and IANA timezones
 
-- Import a suitable GeoNames cities dump for stable city identity, coordinates,
-  country/region, and population. Record its required attribution.
+- Import GeoNames `cities15000` plus `admin1CodesASCII` for stable city identity,
+  coordinates, country/region, population, and timezone. The repeatable importer
+  upserts by `geonames_id`; record its required attribution.
 - Resolve and store an IANA timezone for each city during ingestion, using the
   GeoNames timezone service where needed. Runtime trip rendering uses the stored
   identifier and the platform's current IANA timezone data.

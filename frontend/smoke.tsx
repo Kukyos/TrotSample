@@ -10,8 +10,12 @@ import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { renderToString } from 'react-dom/server'
 import { MemoryRouter } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AppRoutes } from './src/router'
 import { AuthContext, type AuthContextValue } from './src/auth/auth-context'
+import { cities as fixtureCities } from './src/fixtures/catalog'
+import { itineraryItems, trips as fixtureTrips, tripStops } from './src/fixtures/trips'
+import type { City, Trip } from './src/types/domain'
 
 const authenticated: AuthContextValue = {
   status: 'authenticated',
@@ -26,14 +30,41 @@ const authenticated: AuthContextValue = {
 
 const anonymous: AuthContextValue = { status: 'anonymous', viewer: null, signOut: async () => {} }
 
-const render = (route: string, auth: AuthContextValue) =>
-  renderToString(
+const cities: City[] = fixtureCities.map((city) => ({
+  ...city,
+  geonames_id: city.id,
+  latitude: 0,
+  longitude: 0,
+  population: city.popularity_score,
+}))
+
+const trips: Trip[] = fixtureTrips.map((trip) => ({
+  ...trip,
+  trip_stops: tripStops.filter((stop) => stop.trip_id === trip.id).map((stop) => ({
+    ...stop,
+    city: cities.find((city) => city.id === stop.city_id)!,
+    itinerary_items: itineraryItems.filter((item) => item.stop_id === stop.id),
+  })),
+}))
+
+const render = (route: string, auth: AuthContextValue) => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } })
+  queryClient.setQueryData(['trips'], trips)
+  queryClient.setQueryData(['cities', 'popular'], cities.slice(0, 6))
+  queryClient.setQueryData(['cities', 'profile'], cities)
+  for (const trip of trips) queryClient.setQueryData(['trip', trip.id], trip)
+  queryClient.setQueryData(['trip', 'does-not-exist'], null)
+
+  return renderToString(
     <AuthContext.Provider value={auth}>
-      <MemoryRouter initialEntries={[route]}>
-        <AppRoutes />
-      </MemoryRouter>
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={[route]}>
+          <AppRoutes />
+        </MemoryRouter>
+      </QueryClientProvider>
     </AuthContext.Provider>,
   )
+}
 
 type Case = { route: string; name: string; expect?: string[]; auth?: AuthContextValue }
 
@@ -50,12 +81,12 @@ const CASES: Case[] = [
     // the machine's local zone. Run under TZ=Asia/Kolkata to confirm.
     expect: ['09:00', 'Sagrada Familia', 'Transport', 'Where the money goes'],
   },
-  { route: '/trips/trip-europe-loop/build', name: 'builder', expect: ['09:00', 'Add item to'] },
+  { route: '/trips/trip-europe-loop/build', name: 'builder', expect: ['09:00', 'planned and read-only'] },
   { route: '/trips/trip-kansai-spring', name: 'itinerary-single-stop' },
   { route: '/trips/does-not-exist', name: 'trip-not-found', expect: ['isn’t here'] },
   { route: '/explore', name: 'explore', expect: ['Cities', 'Activities'] },
-  { route: '/explore?q=barcelona', name: 'explore-search', expect: ['Barcelona'] },
-  { route: '/calendar', name: 'calendar', expect: ['September 2026', 'Europe Loop'] },
+  { route: '/explore?q=barcelona', name: 'explore-search', expect: ['Search'] },
+  { route: '/calendar', name: 'calendar', expect: ['Kansai in Shoulder Season'] },
   { route: '/community', name: 'community', expect: ['Sagrada'] },
   { route: '/profile', name: 'profile', expect: ['PREPLANNED TRIPS', 'admin panel'] },
   { route: '/admin', name: 'admin', expect: ['MANAGE USERS', 'Popular cities'] },

@@ -51,3 +51,27 @@ unless the project purchases API credits and explicitly adds them to the
 function's requested field list. Errors use
 `{ error: { code, message, retryable? } }`; the frontend should show the message
 and offer retry only when `retryable` is true.
+
+`savePlace({ cityId, fsqPlaceId })` invokes the authenticated `save-place`
+function. It re-fetches Pro fields server-side, upserts a trusted normalized
+activity, and returns its database ID. Selecting or typing never saves a place;
+this runs only when a selected result is committed to a trip.
+
+## Catalog and trips
+
+| Function | Purpose |
+| --- | --- |
+| `searchCities(query, limit)` | Searches the imported GeoNames catalog through an indexed RPC. |
+| `getPopularCities(limit)` | Returns a population-ranked cold-start city list. |
+| `createTrip(input)` | Creates an owned draft, ordered stops, and selected unscheduled activities atomically. |
+| `listTrips()` | Returns only the current user's trips with nested stops, cities, and items. |
+| `getTrip(id)` | Returns one RLS-visible trip with nested details. |
+| `addActivityToStop(stopId, activityId)` | Adds a normalized activity to an owned draft stop. |
+| `scheduleItem(input)` | Schedules an item using the stop city's timezone. |
+| `addCustomItem(input)` | Adds a scheduled manual item. |
+| `removeItem(id)` | Removes an item from an owned draft trip. |
+| `reorderStops(...)`, `reorderItems(...)` | Apply complete-set atomic ordering. |
+| `finishTrip(id)` | Validates and marks a complete draft as planned. |
+
+TanStack Query owns server-data caching and invalidation. Page-local state owns
+search text, form drafts, selections, and transient dialogs.

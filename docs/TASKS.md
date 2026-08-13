@@ -42,8 +42,8 @@ Status: **IN PROGRESS — Praneet is simplifying the schema iteratively.**
 - [ ] Reduce the initial schema to the smallest structure required by active features.
 
 - [ ] Document tables, relationships, and RLS policies in `docs/SCHEMA.md`.
-- [ ] Create migrations and seed data in `backend/supabase/`.
-- [ ] Generate `frontend/src/types/database.ts` from the live schema.
+- [x] Create catalog and trip-workflow migrations plus repeatable GeoNames ingestion in `backend/supabase/`.
+- [x] Generate `frontend/src/types/database.ts` from the local schema.
 - [x] Document the frontend auth service functions in `docs/SERVICES.md`.
 - [ ] Test RLS with the seeded development account.
 
@@ -79,8 +79,8 @@ Decisions locked with Armaan before implementation:
   cannot be opened locally until Supabase env values exist and a session can be
   created. Until then `npm run smoke` renders every route and writes static
   previews to `dist/preview/` for review.
-- [ ] Replace each `fixtures/` import with a documented service function once
-  trip, city, and activity services are added to `docs/SERVICES.md`.
+- [x] Replace trip-workflow fixture imports with documented service functions;
+  fixtures remain only for smoke previews and deferred community/admin demos.
 
 ## Decisions needed from Armaan
 

@@ -33,7 +33,10 @@ export type PlaceSearchResult = {
 
 export type PlaceSearchInput = {
   query: string
-  near: string
+  near?: string
+  latitude?: number
+  longitude?: number
+  radiusMeters?: number
   limit?: number
   sort?: 'relevance' | 'rating' | 'distance' | 'popularity'
 }
@@ -75,4 +78,16 @@ export async function searchPlaces(input: PlaceSearchInput) {
   }
 
   return data
+}
+
+export async function savePlace(input: { cityId: number; fsqPlaceId: string }) {
+  const { data, error } = await getSupabaseClient().functions.invoke<{ activityId: number }>(
+    'save-place',
+    { body: input },
+  )
+  if (error) throw new Error(await functionErrorMessage(error))
+  if (!data || !Number.isSafeInteger(data.activityId)) {
+    throw new Error('Place saving returned an invalid response.')
+  }
+  return data.activityId
 }

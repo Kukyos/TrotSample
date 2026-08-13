@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import type { Trip } from '../../fixtures/trips'
+import type { Trip } from '../../types/domain'
 import { formatDateRange, formatMoney, tripBudget, tripCityNames, tripPhase } from '../../lib/trip'
 import { Reveal, Spotlight } from './motion'
 
@@ -18,7 +18,7 @@ export function TripRail({ trips }: { trips: Trip[] }) {
                 <Link className="trip-card" to={`/trips/${trip.id}`}>
                   <span className={`phase-tag is-${phase}`}>{phase}</span>
                   <h3>{trip.title}</h3>
-                  <p className="trip-card-route">{tripCityNames(trip.id).join(' → ')}</p>
+                  <p className="trip-card-route">{tripCityNames(trip).join(' → ')}</p>
                   <dl className="trip-card-meta">
                     <div>
                       <dt>Dates</dt>

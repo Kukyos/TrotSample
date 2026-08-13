@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import type { AuthStatus } from './auth/auth-context'
 import type { AuthViewer } from './services/auth'
 import { TripRail } from './components/ui/TripRail'
@@ -7,8 +8,8 @@ import { Reveal, Spotlight } from './components/ui/motion'
 import SplitText from './components/reactbits/SplitText'
 import ShinyText from './components/reactbits/ShinyText'
 import ScrollVelocity from './components/reactbits/ScrollVelocity'
-import { cities } from './fixtures/catalog'
-import { trips } from './fixtures/trips'
+import { getPopularCities } from './services/catalog'
+import { listTrips } from './services/trips'
 import { tripPhase } from './lib/trip'
 
 type LandingPageProps = {
@@ -211,25 +212,39 @@ function HeroSearch() {
 
 /** Everything below the hero once you are signed in. This is the dashboard —
  *  there is no separate `/dashboard` screen, only this page in its logged-in
- *  state, which is why `/dashboard` redirects here. */
+ *  state, which is why `/dashboard` redirects here. Data comes from
+ *  `services/`, never from Supabase directly, per the boundary in CLAUDE.md. */
 function SignedInHome() {
-  const active = trips.filter((trip) => tripPhase(trip) !== 'completed').slice(0, 3)
-  const topRegional = [...cities].sort((a, b) => b.popularity_score - a.popularity_score).slice(0, 6)
+  const tripsQuery = useQuery({ queryKey: ['trips'], queryFn: listTrips })
+  const citiesQuery = useQuery({ queryKey: ['cities', 'popular'], queryFn: () => getPopularCities(6) })
+
+  const active = (tripsQuery.data ?? []).filter((trip) => tripPhase(trip) !== 'completed').slice(0, 3)
+  const topRegional = citiesQuery.data ?? []
 
   return (
     <>
       <section className="landing-continue section-shell" id="continue" aria-labelledby="home-continue">
         <div className="section-stamp">
           <span id="home-continue">CONTINUE PLANNING</span>
-          <span>{active.length} ACTIVE</span>
+          <span>{tripsQuery.isLoading ? 'LOADING' : `${active.length} ACTIVE`}</span>
         </div>
 
-        {active.length === 0 ? (
+        {tripsQuery.isError && (
+          <p className="auth-message is-error" role="alert">{tripsQuery.error.message}</p>
+        )}
+
+        {tripsQuery.isLoading && (
+          <div className="empty-state"><p>Loading your trips…</p></div>
+        )}
+
+        {!tripsQuery.isLoading && !tripsQuery.isError && active.length === 0 && (
           <div className="empty-state">
             <p>No active trips yet.</p>
             <Link className="button button-primary" to="/trips/new">Start your first trip</Link>
           </div>
-        ) : (
+        )}
+
+        {active.length > 0 && (
           <>
             <TripRail trips={active} />
             <Link className="arrow-link" to="/trips">SEE ALL YOUR TRIPS <span>&#8594;</span></Link>
@@ -243,24 +258,32 @@ function SignedInHome() {
           <span>BY POPULARITY</span>
         </div>
 
-        <ul className="city-grid">
-          {topRegional.map((city, index) => (
-            <li key={city.id}>
-              <Reveal delay={index * 0.06}>
-                <Spotlight>
-                  <Link className="city-card" to={`/explore?q=${encodeURIComponent(city.name)}`}>
-                    <span className="city-code">{city.country_code}</span>
-                    <h3>{city.name}</h3>
-                    <p>{city.description}</p>
-                    <span className="city-meta">
-                      {city.region} · cost index {city.cost_index?.toFixed(1) ?? '—'}
-                    </span>
-                  </Link>
-                </Spotlight>
-              </Reveal>
-            </li>
-          ))}
-        </ul>
+        {citiesQuery.isError && (
+          <p className="auth-message is-error" role="alert">{citiesQuery.error.message}</p>
+        )}
+
+        {citiesQuery.isLoading ? (
+          <div className="empty-state"><p>Loading cities…</p></div>
+        ) : (
+          <ul className="city-grid">
+            {topRegional.map((city, index) => (
+              <li key={city.id}>
+                <Reveal delay={index * 0.06}>
+                  <Spotlight>
+                    <Link className="city-card" to={`/explore?q=${encodeURIComponent(city.name)}`}>
+                      <span className="city-code">{city.country_code}</span>
+                      <h3>{city.name}</h3>
+                      <p>{city.description}</p>
+                      <span className="city-meta">
+                        {city.region} · cost index {city.cost_index?.toFixed(1) ?? '—'}
+                      </span>
+                    </Link>
+                  </Spotlight>
+                </Reveal>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </>
   )

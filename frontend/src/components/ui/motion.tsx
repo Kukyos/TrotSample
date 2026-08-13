@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import AnimatedContent from '../reactbits/AnimatedContent'
 import SpotlightCard from '../reactbits/SpotlightCard'
-import Aurora from '../reactbits/Aurora'
 import { prefersReducedMotion } from '../../lib/motion'
 
 /** Every React Bits component is used through this file, so the reduced-motion
@@ -35,14 +34,7 @@ export function Spotlight({ children, className = '' }: { children: ReactNode; c
   )
 }
 
-/** The WebGL aurora behind the hero. Sized by its container, so it needs a
- *  positioned parent with real dimensions. */
-export function HeroAurora() {
-  if (prefersReducedMotion()) return null
-
-  return (
-    <div className="hero-aurora" aria-hidden="true">
-      <Aurora colorStops={['#5227FF', '#af50ff', '#e1bdff']} amplitude={1.1} blend={0.6} speed={0.7} />
-    </div>
-  )
-}
+/* The React Bits Aurora background was tried here and removed. Its WebGL canvas
+   over the hero's photo, gradients, grain, and backdrop-filter layers dropped
+   the page to single-digit frames and stalled GSAP mid-tween. The hero already
+   carries a photograph; if an aurora is wanted, it belongs on a flat screen. */

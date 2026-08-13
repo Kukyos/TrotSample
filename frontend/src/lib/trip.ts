@@ -2,13 +2,7 @@
 // budget totals, category breakdown, and average daily cost as calculated data,
 // never stored columns. These move to SQL views when the services layer lands.
 
-import { cityById } from '../fixtures/catalog'
-import {
-  itemsForTrip,
-  stopsForTrip,
-  type ItemKind,
-  type Trip,
-} from '../fixtures/trips'
+import type { ItemKind, Trip } from '../types/domain'
 
 export type TripPhase = 'ongoing' | 'upcoming' | 'completed'
 
@@ -41,8 +35,8 @@ export function tripNights(trip: Trip) {
   return Math.max(1, Math.round(ms / 86_400_000))
 }
 
-export function tripCityNames(tripId: string) {
-  return stopsForTrip(tripId).map((stop) => cityById.get(stop.city_id)?.name ?? 'Unknown')
+export function tripCityNames(trip: Trip) {
+  return trip.trip_stops.map((stop) => stop.city?.name ?? 'Unknown')
 }
 
 export type BudgetSlice = {
@@ -64,10 +58,10 @@ export type TripBudget = {
 }
 
 export function tripBudget(trip: Trip): TripBudget {
-  const items = itemsForTrip(trip.id)
+  const items = trip.trip_stops.flatMap((stop) => stop.itinerary_items)
   const totals = new Map<ItemKind, number>()
   for (const item of items) {
-    totals.set(item.kind, (totals.get(item.kind) ?? 0) + item.estimated_cost)
+    totals.set(item.kind, (totals.get(item.kind) ?? 0) + (item.estimated_cost ?? 0))
   }
 
   const spent = [...totals.values()].reduce((sum, value) => sum + value, 0)
@@ -117,20 +111,20 @@ export function formatDateRange(start: string, end: string) {
 // day headers across midnight in negative-offset zones. Trip-level dates go
 // through atMidnight instead, which is local-consistent on both ends.
 
-export function formatDay(value: string) {
+export function formatDay(value: string, timeZone = 'UTC') {
   return new Intl.DateTimeFormat('en-GB', {
     weekday: 'short',
     day: '2-digit',
     month: 'short',
-    timeZone: 'UTC',
+    timeZone,
   }).format(new Date(value))
 }
 
-export function formatTime(value: string) {
+export function formatTime(value: string, timeZone = 'UTC') {
   return new Intl.DateTimeFormat('en-GB', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
-    timeZone: 'UTC',
+    timeZone,
   }).format(new Date(value))
 }
