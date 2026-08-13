@@ -185,59 +185,71 @@ Owner: Armaan
 - [ ] Verify anonymous, loading, authenticated, logout, refresh, and deep-link flows.
 - [ ] Confirm the production Vercel build and preview URL.
 
-## Visual pass — one shell, real fonts, motion
+## Visual pass — one shell, real fonts, React Bits
 
-Owner: Armaan
+Owner: Armaan. Branch: `design/visual-pass` (merged with `main` @ 8a9a249).
 
 Done:
 
-- [x] Wired the fonts `docs/DESIGN.md` has always specified. The stack was
-  falling back to Arial and Times: Whyte Inktrap → **Inter Tight**, GrandSlang →
-  **Instrument Serif** italic, Whyte Mono → **JetBrains Mono**, loaded from
-  Google Fonts in `frontend/index.html`.
-- [x] Collapsed the two headers into one. The landing `.site-header` is now the
-  header on every screen, rendered by `AppShell`; only its links and session
-  slot change with auth state. The floating `.app-dock` and all its CSS are
-  deleted.
-- [x] Merged the dashboard into the landing page. `/` is the whole home: the
-  pitch when anonymous, and when signed in a personalised hero, trip search,
-  "Continue planning" rail, and regional selections. `DashboardPage.tsx` is
-  deleted and `/dashboard` is a redirect to `/`, so the links named in
-  `docs/AUTH.md` still resolve. The trip rail lives in `components/ui/TripRail.tsx`.
-- [x] Added depth and motion: a static violet-and-grain wash behind every
-  screen, scroll reveals via `lib/reveal.ts`, a looping signal marquee, card
-  hover lift, and a closing footer rule on app screens.
-- [x] Fixed the status pill stretching to full card width in the trip rail.
-- [x] `ProtectedRoute`'s loading state rendered a second `<main>` inside the
-  shell's `<main>`. Now a `div`.
+- [x] Wired the fonts `docs/DESIGN.md` always specified. The stack was falling
+  back to Arial and Times: Whyte Inktrap → **Inter Tight**, GrandSlang →
+  **Instrument Serif** italic, Whyte Mono → **JetBrains Mono**.
+- [x] One header everywhere. The landing `.site-header` is the header on every
+  screen; only its links and session slot change with auth state. The floating
+  `.app-dock` and its CSS are deleted.
+- [x] The dashboard is the landing page. `/` is the whole home — the pitch when
+  anonymous, your trips when signed in. `DashboardPage.tsx` is deleted and
+  `/dashboard` redirects to `/`. After merging Praneet's services, the
+  signed-in home reads `listTrips()` and `getPopularCities()` through
+  react-query with loading and error states, not fixtures.
+- [x] **React Bits** vendored under `src/components/reactbits/` (TS+CSS
+  variants, straight from the upstream repo, excluded from lint so it can be
+  re-pulled). In use: SplitText (hero headline), ShinyText (hero kicker),
+  ScrollVelocity (signal strip), SpotlightCard (trip and city cards),
+  AnimatedContent (scroll reveals), ClickSpark (global). Everything routes
+  through `components/ui/motion.tsx` so `prefers-reduced-motion` is honoured in
+  one place — GSAP and WebGL cannot be reached by the CSS media query.
+  Adds `gsap`, `@gsap/react`, and `motion` to `package.json`; the bundle goes
+  from ~374 kB to ~678 kB (gzip 111 kB → 218 kB).
+- [x] Deleted the hand-rolled reveal hook (`lib/reveal.ts`) and CSS marquee that
+  React Bits now replaces.
 
-Two bugs found and fixed during the pass, both worth remembering:
+Bugs found and fixed, worth remembering:
 
-- The reveal hook keyed only on `pathname`, so screens that mount *after* the
-  session resolves were observed before they existed and stayed at `opacity: 0`
-  forever. It now depends on auth status too. `uitest.tsx` cannot catch this
-  class of bug — it stubs `status: 'authenticated'` from the first render, so
-  the loading → authenticated flip never happens.
+- `.hero h1 span { display: block }` was unscoped, so it applied to every span
+  SplitText generates and stacked the headline one word per line. Now
+  `.hero h1 > span`. Any component that injects nested spans will hit this
+  class of rule — scope descendant selectors before adding one.
 - The grain layer had no `background-size`, so `feTurbulence` rasterised at full
-  page height. Every `backdrop-filter` card above it resampled that layer and
-  stalled the compositor hard enough to block IntersectionObserver entirely.
-  Tiling it at 160px fixed it. Watch for this whenever a full-bleed effect layer
-  goes behind the glass cards.
+  page height instead of tiling. Fixed at 160px.
+- The reveal hook keyed only on `pathname`, so screens mounting after the
+  session resolved were observed before they existed and stayed invisible. Moot
+  now that AnimatedContent replaced it, but note that `uitest.tsx` cannot catch
+  that class of bug: it stubs `status: 'authenticated'` from the first render,
+  so the loading → authenticated flip never happens.
+- `ProtectedRoute` rendered a second `<main>` inside the shell's `<main>`.
 
-Open issues found:
+Open — needs a human at a real browser:
 
-- [ ] `/login` will not complete a full-page screenshot capture — the compositor
-  stalls. **Reproduces on unmodified `main`**, so it predates this pass; suspect
-  the two large spread `box-shadow` rings on `.auth-intro::after`. Given the
-  grain bug above, this is probably the same class of problem. Confirm whether a
-  real user sees a slow paint before spending time on it.
-- [ ] Fonts come from the Google Fonts CDN. On a flaky demo network the page
-  falls back to Arial and Times. Self-host before relying on it live.
-- [ ] Mobile is unverified. The browser tooling would not resize below ~1500px,
-  so every breakpoint below 820px was reasoned about, not seen. The deleted
-  bottom-dock media query and the `12rem` → `4rem` `.app-main` padding change
-  both need eyes on a real narrow viewport.
+- [ ] **No animation in this pass has been seen running.** The automated browser
+  tab runs backgrounded, where Chrome suspends `requestAnimationFrame`
+  completely (measured: 0 frames in 1s). Every GSAP and `motion` animation
+  freezes mid-tween there, and screenshots capture that frozen state. Layout was
+  verified by forcing end-states and measuring boxes; **motion, timing, and feel
+  are unverified.** Open `npm run dev` and look.
+- [ ] The React Bits **Aurora** WebGL background was added to the hero and then
+  removed, along with its `ogl` dependency, on the belief that it was stalling
+  the compositor. That diagnosis was wrong — the freeze was the hidden-tab rAF
+  suspension above. Aurora may well be fine. Restoring it is
+  `npm i ogl`, re-adding the two files from the upstream repo, and the
+  `HeroAurora` export noted in `components/ui/motion.tsx`.
+- [ ] Mobile is still unverified — the tooling would not resize the window below
+  ~1500px. Every breakpoint under 820px was reasoned about, not seen.
+- [ ] Fonts load from the Google Fonts CDN; a flaky demo network falls back to
+  Arial and Times. Self-host before relying on it live.
+- [ ] `/login` would not screenshot even on unmodified `main`, so it predates
+  this work — but that was probably the same hidden-tab artefact, not a real
+  fault. Re-check on a visible browser before investigating.
 
 Verified: `npm run lint`, `npm run build`, and `npm run smoke` (14 routes) all
-clean. Landing anonymous, signed-in home, `/explore`, and `/trips` reviewed
-running locally at 1440px.
+clean on the merged tree.

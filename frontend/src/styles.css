@@ -331,10 +331,13 @@ img {
   letter-spacing: -0.072em;
 }
 
-.hero h1 span,
-.manifesto h2 span,
-.journey-panel h2 span,
-.final-call h2 span {
+/* Direct children only. SplitText generates nested spans inside each hero
+   line, and an unscoped rule here turned every one of them into its own
+   line — the reason the headline stacked word by word. */
+.hero h1 > span,
+.manifesto h2 > span,
+.journey-panel h2 > span,
+.final-call h2 > span {
   display: block;
 }
 
@@ -1720,6 +1723,7 @@ select option { color: var(--paper); background: #131215; }
   perspective: 900px;
 }
 
+.hero h1 .hero-line span { display: inline-block; }
 .hero h1 .split-char { will-change: transform, opacity; }
 
 /* The WebGL aurora sits above the hero photo but below every hero element. */
