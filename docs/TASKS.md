@@ -82,6 +82,58 @@ Decisions locked with Armaan before implementation:
 - [ ] Replace each `fixtures/` import with a documented service function once
   trip, city, and activity services are added to `docs/SERVICES.md`.
 
+## Decisions needed from Armaan
+
+Blocked on a judgement call, not on effort. Each one has a recommendation; say
+which way and the work follows immediately.
+
+- [ ] **Mixed-currency trip budgets.** Sorting trips by budget compares raw
+  numbers, so JP¥420,000 ranks above €5,000, and the trip list shows four
+  currencies side by side. Options: convert everything to one display currency
+  with a stored rate; sort and total only within a single selected currency; or
+  seed every demo trip in EUR and postpone the problem.
+  *Recommended: seed in EUR for Run 1 and note the limitation — conversion needs
+  a rate source nobody owns yet.*
+
+- [ ] **Builder edits are lost on navigation.** Add an item, open the itinerary
+  view, come back, and it is gone. Correct for session-only state, but it reads
+  as a bug in a demo. Options: lift the builder state so it survives within a
+  session; leave it and avoid that path in the demo; or wait for the real trip
+  services and let persistence solve it.
+  *Recommended: wait for the services — lifting state now is work that gets
+  deleted.*
+
+- [ ] **"Cities visited" on the profile counts upcoming trips.** Either the label
+  is wrong or the count is. Options: rename to "Cities planned", or count only
+  cities from completed trips.
+  *Recommended: count only completed trips — "visited" is the more useful number.*
+
+- [ ] **Calendar chips lose their text on phones.** Below 760px the chips become
+  colour bars and the trip names live only in the legend underneath. Options:
+  keep it; show a truncated name; or show a count per day.
+  *Recommended: keep it — 44px cells cannot hold a readable name.*
+
+- [ ] **Configuration errors are user-facing.** With no Supabase credentials the
+  login form and place search both print "Add VITE_SUPABASE_URL and
+  VITE_SUPABASE_PUBLISHABLE_KEY to frontend/.env.local" to the visitor. Needs a
+  human-facing fallback, and the real message kept to the console. Confirm the
+  wording you want.
+
+- [ ] **Keep or remove the dev-only UI harness** (`frontend/uitest.html`). It is
+  what made the end-to-end pass possible and cannot reach production, but it does
+  mount the app with a stubbed auth context. Keep it until credentials exist, or
+  remove it now.
+  *Recommended: keep until the login wall is usable locally, then delete.*
+
+- [ ] **Admin exposure.** `/admin` has no role check and is reachable from the
+  profile page. Confirm it stays there until the Auth `app_metadata` check exists,
+  or should be unreachable entirely for now.
+
+- [ ] **Is place search in the demo?** The `search-places` Edge Function and its
+  Foursquare key deploy to Supabase separately from Vercel, so a green Vercel
+  deploy does not mean search works. Someone must deploy the function and set the
+  secret, or the Activities tab shows an error in the demo.
+
 ## End-to-end UI pass
 
 Owner: Armaan
