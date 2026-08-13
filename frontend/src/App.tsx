@@ -1,4 +1,7 @@
-export type AuthStatus = 'loading' | 'anonymous' | 'authenticated'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { useAuth, type AuthStatus } from './auth/auth-context'
+import { DashboardPage } from './pages/DashboardPage'
+import { LoginPage } from './pages/LoginPage'
 
 export type Viewer = {
   displayName: string | null
@@ -343,5 +346,14 @@ export function LandingPage({
 }
 
 export default function App() {
-  return <LandingPage />
+  const { status, viewer } = useAuth()
+
+  return (
+    <Routes>
+      <Route path="/" element={<LandingPage authStatus={status} viewer={viewer} />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/dashboard" element={<DashboardPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
 }

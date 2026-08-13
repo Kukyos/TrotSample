@@ -22,13 +22,15 @@ Owner: Praneet
 
 Status: **IN PROGRESS — login page owned by Praneet.**
 
-- [ ] Add a maintained, audit-clean React Router release.
+- [x] Add the latest React Router v6 patch release. Two moderate advisories remain
+  across all v6 releases; current routes use only fixed internal destinations and
+  the SPA does not use SSR hydration. Moving to v7 requires a stack decision.
 - [ ] Preserve `/` as the public landing page.
-- [ ] Build `/login` without editing the landing-page composition.
-- [ ] Implement the auth provider contract in `docs/AUTH.md`.
-- [ ] Add login, signup, logout, session restore, loading, and error states.
-- [ ] Redirect a successful login to `/dashboard`.
-- [ ] Wire the real auth state into the landing navigation.
+- [x] Build `/login` without editing the landing-page composition.
+- [x] Implement the auth provider contract in `docs/AUTH.md`.
+- [x] Add login, signup, logout, session restore, loading, and error states.
+- [x] Redirect a successful login to `/dashboard`.
+- [x] Wire the real auth state into the landing navigation.
 - [ ] Keep all Supabase access behind the provider and `frontend/src/services/`.
 
 ## Supabase foundation
@@ -42,7 +44,7 @@ Status: **IN PROGRESS — Praneet is simplifying the schema iteratively.**
 - [ ] Document tables, relationships, and RLS policies in `docs/SCHEMA.md`.
 - [ ] Create migrations and seed data in `backend/supabase/`.
 - [ ] Generate `frontend/src/types/database.ts` from the live schema.
-- [ ] Document frontend service functions in `docs/SERVICES.md`.
+- [x] Document the frontend auth service functions in `docs/SERVICES.md`.
 - [ ] Test RLS with the seeded development account.
 
 ## Integration gate
