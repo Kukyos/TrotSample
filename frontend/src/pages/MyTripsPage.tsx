@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { trips } from '../fixtures/trips'
+import { useQuery } from '@tanstack/react-query'
+import { listTrips } from '../services/trips'
 import {
   formatDateRange,
   formatMoney,
@@ -22,12 +23,14 @@ const GROUPS: { phase: TripPhase; label: string; blurb: string }[] = [
 export function MyTripsPage() {
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<SortKey>('start')
+  const tripsQuery = useQuery({ queryKey: ['trips'], queryFn: listTrips })
+  const trips = useMemo(() => tripsQuery.data ?? [], [tripsQuery.data])
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase()
     const matches = trips.filter((trip) => {
       if (!needle) return true
-      const haystack = [trip.title, trip.description ?? '', ...tripCityNames(trip.id)]
+      const haystack = [trip.title, trip.description ?? '', ...tripCityNames(trip)]
         .join(' ')
         .toLowerCase()
       return haystack.includes(needle)
@@ -38,7 +41,7 @@ export function MyTripsPage() {
       if (sort === 'budget') return (b.budget_amount ?? 0) - (a.budget_amount ?? 0)
       return a.start_date.localeCompare(b.start_date)
     })
-  }, [query, sort])
+  }, [query, sort, trips])
 
   return (
     <div className="page trips-page">
@@ -69,7 +72,9 @@ export function MyTripsPage() {
         </select>
       </div>
 
-      {filtered.length === 0 && (
+      {tripsQuery.isError && <p className="auth-message is-error" role="alert">{tripsQuery.error.message}</p>}
+      {tripsQuery.isLoading && <div className="empty-state"><p>Loading your trips…</p></div>}
+      {!tripsQuery.isLoading && filtered.length === 0 && (
         <div className="empty-state">
           <p>No trips match “{query}”.</p>
           <button type="button" className="text-link" onClick={() => setQuery('')}>
@@ -93,7 +98,7 @@ export function MyTripsPage() {
             <ul className="trip-list">
               {groupTrips.map((trip) => {
                 const budget = tripBudget(trip)
-                const stops = tripCityNames(trip.id)
+                const stops = tripCityNames(trip)
                 return (
                   <li key={trip.id}>
                     <article className="trip-row">

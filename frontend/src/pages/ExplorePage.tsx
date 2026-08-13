@@ -1,7 +1,10 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { cities } from '../fixtures/catalog'
-import { searchPlaces, type PlaceSearchResult } from '../services/places'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { searchCities } from '../services/catalog'
+import { searchPlaces, savePlace, type PlaceSearchResult } from '../services/places'
+import { addActivityToStop, listTrips } from '../services/trips'
+import type { City } from '../types/domain'
 
 type Tab = 'cities' | 'activities'
 type Sort = 'popular' | 'name' | 'cost'
@@ -26,32 +29,45 @@ export function ExplorePage() {
   const [sort, setSort] = useState<Sort>('popular')
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>('all')
   const [near, setNear] = useState('')
+  const [cities, setCities] = useState<City[]>([])
   const [places, setPlaces] = useState<PlaceSearchResult[]>([])
   const [attribution, setAttribution] = useState('')
   const [activitySearchLabel, setActivitySearchLabel] = useState('')
   const [searchStatus, setSearchStatus] = useState<SearchStatus>('idle')
   const [searchError, setSearchError] = useState('')
+  const [placeToAdd, setPlaceToAdd] = useState<PlaceSearchResult | null>(null)
+  const queryClient = useQueryClient()
+  const tripsQuery = useQuery({ queryKey: ['trips'], queryFn: listTrips })
+  const addMutation = useMutation({
+    mutationFn: async ({ stopId, cityId }: { stopId: string; cityId: number }) => {
+      if (!placeToAdd) throw new Error('Choose a place first.')
+      const activityId = await savePlace({ cityId, fsqPlaceId: placeToAdd.fsqPlaceId })
+      await addActivityToStop(stopId, activityId)
+    },
+    onSuccess: async () => {
+      setPlaceToAdd(null)
+      setSearchError('')
+      await queryClient.invalidateQueries({ queryKey: ['trips'] })
+    },
+    onError: (reason) => {
+      setSearchStatus('error')
+      setSearchError(reason instanceof Error ? reason.message : 'Place could not be added.')
+    },
+  })
 
   const query = params.get('q') ?? ''
-  const needle = query.trim().toLowerCase()
 
   const setQuery = (value: string) => {
     setParams(value ? { q: value } : {}, { replace: true })
   }
 
   const visibleCities = useMemo(() => {
-    const matched = cities.filter((city) =>
-      !needle ||
-      `${city.name} ${city.country_code} ${city.region ?? ''} ${city.description ?? ''}`
-        .toLowerCase()
-        .includes(needle),
-    )
-    return [...matched].sort((a, b) => {
+    return [...cities].sort((a, b) => {
       if (sort === 'name') return a.name.localeCompare(b.name)
       if (sort === 'cost') return (a.cost_index ?? 0) - (b.cost_index ?? 0)
-      return b.popularity_score - a.popularity_score
+      return (b.population ?? 0) - (a.population ?? 0)
     })
-  }, [needle, sort])
+  }, [cities, sort])
 
   const visibleActivities = useMemo(() => {
     const matched = places.filter((place) => category === 'all' || place.category === category)
@@ -62,11 +78,28 @@ export function ExplorePage() {
     })
   }, [places, sort, category])
 
-  const searchActivities = async (event: FormEvent<HTMLFormElement>) => {
+  const submitSearch = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (tab !== 'activities') return
-
     const normalizedQuery = query.trim()
+    if (tab === 'cities') {
+      if (normalizedQuery.length < 2) {
+        setSearchStatus('error')
+        setSearchError('Enter at least two letters to search cities.')
+        return
+      }
+      setSearchStatus('loading')
+      setSearchError('')
+      try {
+        setCities(await searchCities(normalizedQuery))
+        setSearchStatus('success')
+      } catch (error) {
+        setCities([])
+        setSearchStatus('error')
+        setSearchError(error instanceof Error ? error.message : 'City search failed.')
+      }
+      return
+    }
+
     const normalizedNear = near.trim()
     if (normalizedQuery.length < 2 || normalizedNear.length < 2) {
       setSearchStatus('error')
@@ -106,7 +139,7 @@ export function ExplorePage() {
         </div>
       </header>
 
-      <form className="explore-search" role="search" onSubmit={searchActivities}>
+      <form className="explore-search" role="search" onSubmit={submitSearch}>
         <label className="visually-hidden" htmlFor="explore-input">Search cities and activities</label>
         <input
           id="explore-input"
@@ -125,11 +158,11 @@ export function ExplorePage() {
               placeholder="Near city or destination"
               onChange={(event) => setNear(event.target.value)}
             />
-            <button type="submit" className="ghost-button" disabled={searchStatus === 'loading'}>
-              {searchStatus === 'loading' ? 'Searching…' : 'Search'}
-            </button>
           </>
         )}
+        <button type="submit" className="ghost-button" disabled={searchStatus === 'loading'}>
+          {searchStatus === 'loading' ? 'Searching…' : 'Search'}
+        </button>
       </form>
 
       <div className="explore-controls">
@@ -166,21 +199,21 @@ export function ExplorePage() {
         </div>
       </div>
 
-      {tab === 'activities' && searchStatus === 'error' ? (
+      {searchStatus === 'error' ? (
         <p className="explore-message is-error" role="alert">{searchError}</p>
       ) : (
         <p className="result-count" role="status" aria-live="polite">
           {searchStatus === 'loading'
-            ? 'Searching Foursquare…'
+            ? tab === 'activities' ? 'Searching Foursquare…' : 'Searching GeoNames cities…'
             : `${count} ${count === 1 ? 'result' : 'results'}${tab === 'cities' && query ? ` for “${query}”` : activitySearchLabel ? ` for “${activitySearchLabel}”` : ''}`}
         </p>
       )}
 
-      {tab === 'activities' && searchStatus === 'idle' ? (
+      {searchStatus === 'idle' ? (
         <div className="empty-state">
-          <p>Enter an activity and destination, then search Foursquare.</p>
+          <p>{tab === 'activities' ? 'Enter an activity and destination, then search Foursquare.' : 'Enter a city or region, then search the GeoNames catalog.'}</p>
         </div>
-      ) : searchStatus === 'loading' && tab === 'activities' ? (
+      ) : searchStatus === 'loading' ? (
         <div className="empty-state" aria-hidden="true"><p>Looking for places…</p></div>
       ) : count === 0 ? (
         <div className="empty-state">
@@ -194,9 +227,9 @@ export function ExplorePage() {
               <article className="city-card is-static">
                 <span className="city-code">{city.country_code}</span>
                 <h3>{city.name}</h3>
-                <p>{city.description}</p>
+                <p>{city.description ?? `Explore ${city.name}${city.region ? ` in ${city.region}` : ''}.`}</p>
                 <span className="city-meta">
-                  {city.region} · cost index {city.cost_index?.toFixed(1) ?? '—'}
+                  {city.region ?? city.country_code} · population {city.population?.toLocaleString() ?? '—'}
                 </span>
                 <Link className="ghost-button" to="/trips">Add to a trip</Link>
               </article>
@@ -221,13 +254,25 @@ export function ExplorePage() {
                   </div>
                   <div className="activity-cost">
                     <strong>{priceTierLabel(place.priceTier)}</strong>
-                    <Link className="ghost-button" to="/trips">Add to a trip</Link>
+                    <button type="button" className="ghost-button" onClick={() => setPlaceToAdd(place)}>Add to a trip</button>
                   </div>
                 </article>
               </li>
             ))}
           </ul>
           {attribution && <p className="provider-attribution">{attribution}</p>}
+          {placeToAdd && (
+            <section className="trip-picker" aria-labelledby="trip-picker-title">
+              <div><h2 id="trip-picker-title">Add {placeToAdd.name}</h2><button type="button" className="icon-button" onClick={() => setPlaceToAdd(null)} aria-label="Close trip picker">&#10005;</button></div>
+              <p className="muted-copy">Choose a draft trip stop. The place will be added unscheduled.</p>
+              <ul className="picker-results">
+                {(tripsQuery.data ?? []).filter((trip) => trip.state === 'draft').flatMap((trip) => trip.trip_stops.map((stop) => (
+                  <li key={stop.id}><button type="button" disabled={addMutation.isPending} onClick={() => addMutation.mutate({ stopId: stop.id, cityId: stop.city_id })}><strong>{trip.title}</strong> · {stop.city.name}</button></li>
+                ))) }
+              </ul>
+              {!tripsQuery.isLoading && !(tripsQuery.data ?? []).some((trip) => trip.state === 'draft') && <p className="muted-copy">Create a draft trip first.</p>}
+            </section>
+          )}
         </>
       )}
     </div>

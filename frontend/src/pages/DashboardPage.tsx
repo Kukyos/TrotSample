@@ -1,24 +1,29 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../auth/auth-context'
-import { cities } from '../fixtures/catalog'
-import { trips } from '../fixtures/trips'
+import { getPopularCities } from '../services/catalog'
+import { listTrips } from '../services/trips'
 import { formatDateRange, formatMoney, tripBudget, tripCityNames, tripPhase } from '../lib/trip'
 
 export function DashboardPage() {
   const { viewer } = useAuth()
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
+  const tripsQuery = useQuery({ queryKey: ['trips'], queryFn: listTrips })
+  const citiesQuery = useQuery({ queryKey: ['cities', 'popular'], queryFn: () => getPopularCities(6) })
+  const trips = useMemo(() => tripsQuery.data ?? [], [tripsQuery.data])
+  const cities = useMemo(() => citiesQuery.data ?? [], [citiesQuery.data])
 
   const firstName = (viewer?.displayName || viewer?.email || 'traveller').split(' ')[0]
 
   const upcoming = useMemo(
     () => trips.filter((trip) => tripPhase(trip) !== 'completed').slice(0, 3),
-    [],
+    [trips],
   )
   const topRegional = useMemo(
-    () => [...cities].sort((a, b) => b.popularity_score - a.popularity_score).slice(0, 6),
-    [],
+    () => cities,
+    [cities],
   )
 
   const handleSearch = (event: FormEvent) => {
@@ -75,7 +80,7 @@ export function DashboardPage() {
             <Link className="button button-primary" to="/trips/new">Start your first trip</Link>
           </div>
         ) : (
-          <ul className="trip-rail">
+          <ul className="trip-rail" aria-busy={tripsQuery.isLoading}>
             {upcoming.map((trip) => {
               const budget = tripBudget(trip)
               const phase = tripPhase(trip)
@@ -84,7 +89,7 @@ export function DashboardPage() {
                   <Link className="trip-card" to={`/trips/${trip.id}`}>
                     <span className={`phase-tag is-${phase}`}>{phase}</span>
                     <h3>{trip.title}</h3>
-                    <p className="trip-card-route">{tripCityNames(trip.id).join(' → ')}</p>
+                    <p className="trip-card-route">{tripCityNames(trip).join(' → ')}</p>
                     <dl className="trip-card-meta">
                       <div>
                         <dt>Dates</dt>
@@ -114,15 +119,15 @@ export function DashboardPage() {
           <span>BY POPULARITY</span>
         </div>
 
-        <ul className="city-grid">
+        <ul className="city-grid" aria-busy={citiesQuery.isLoading}>
           {topRegional.map((city) => (
             <li key={city.id}>
               <Link className="city-card" to={`/explore?q=${encodeURIComponent(city.name)}`}>
                 <span className="city-code">{city.country_code}</span>
                 <h3>{city.name}</h3>
-                <p>{city.description}</p>
+                <p>{city.description ?? city.region ?? `Explore ${city.name}`}</p>
                 <span className="city-meta">
-                  {city.region} · cost index {city.cost_index?.toFixed(1) ?? '—'}
+                  {city.region ?? city.country_code} · population {city.population?.toLocaleString() ?? '—'}
                 </span>
               </Link>
             </li>
