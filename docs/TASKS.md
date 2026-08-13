@@ -7,11 +7,11 @@ Update this file in the same change as the work. A code change without a task up
 Owner: Armaan
 
 - [x] Review the replacement `DESIGN.md` and dope.security reference.
-- [ ] Replace the rejected landing page with the dark editorial travel direction.
-- [ ] Add anonymous, loading, and authenticated navigation treatments.
-- [ ] Link anonymous users to `/login` and authenticated users to `/dashboard`.
-- [ ] Verify mobile, keyboard, reduced-motion, lint, build, and local rendering.
-- [ ] Run locally for Armaan's approval.
+- [x] Replace the rejected landing page with the dark editorial travel direction.
+- [x] Add anonymous, loading, and authenticated navigation treatments.
+- [x] Link anonymous users to `/login` and authenticated users to `/dashboard`.
+- [x] Verify mobile, keyboard, reduced-motion, lint, build, and local rendering.
+- [x] Run locally for Armaan's approval.
 - [ ] Push only after approval.
 
 ## Authentication and login
