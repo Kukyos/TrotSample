@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { cityById } from '../fixtures/catalog'
-import { itemsForStop, stopsForTrip, tripById, type ItineraryItem } from '../fixtures/trips'
+import { useQuery } from '@tanstack/react-query'
+import { getTrip } from '../services/trips'
+import type { ItineraryItem } from '../types/domain'
 import {
   formatDateRange,
   formatDay,
@@ -17,17 +18,18 @@ import { NotFoundPanel } from './NotFoundPanel'
 
 export function ItineraryViewPage() {
   const { tripId } = useParams()
-  const trip = tripById(tripId)
+  const tripQuery = useQuery({ queryKey: ['trip', tripId], queryFn: () => getTrip(tripId!), enabled: Boolean(tripId) })
+  const trip = tripQuery.data
 
   const days = useMemo(() => {
     if (!trip) return []
-    const buckets = new Map<string, { stopName: string; items: ItineraryItem[] }>()
+    const buckets = new Map<string, { stopName: string; timezone: string; items: ItineraryItem[] }>()
 
-    for (const stop of stopsForTrip(trip.id)) {
-      const cityName = cityById.get(stop.city_id)?.name ?? 'Unknown'
-      for (const item of itemsForStop(stop.id)) {
-        const dayKey = item.starts_at.slice(0, 10)
-        const bucket = buckets.get(dayKey) ?? { stopName: cityName, items: [] }
+    for (const stop of trip.trip_stops) {
+      for (const item of stop.itinerary_items) {
+        if (!item.starts_at) continue
+        const dayKey = new Intl.DateTimeFormat('en-CA', { timeZone: stop.city.timezone }).format(new Date(item.starts_at))
+        const bucket = buckets.get(dayKey) ?? { stopName: stop.city.name, timezone: stop.city.timezone, items: [] }
         bucket.items.push(item)
         buckets.set(dayKey, bucket)
       }
@@ -38,10 +40,13 @@ export function ItineraryViewPage() {
       .map(([date, bucket]) => ({
         date,
         stopName: bucket.stopName,
-        items: [...bucket.items].sort((a, b) => a.starts_at.localeCompare(b.starts_at)),
+        timezone: bucket.timezone,
+        items: [...bucket.items].sort((a, b) => (a.starts_at ?? '').localeCompare(b.starts_at ?? '')),
       }))
   }, [trip])
 
+  if (tripQuery.isLoading) return <div className="empty-state"><p>Loading itinerary…</p></div>
+  if (tripQuery.isError) return <div className="empty-state"><p role="alert">{tripQuery.error.message}</p></div>
   if (!trip) return <NotFoundPanel what="trip" />
 
   const budget = tripBudget(trip)
@@ -60,7 +65,7 @@ export function ItineraryViewPage() {
           <h1>{trip.title}</h1>
           <p className="muted-copy">
             {formatDateRange(trip.start_date, trip.end_date)} · {tripNights(trip)} days ·{' '}
-            {stopsForTrip(trip.id).length} cities
+            {trip.trip_stops.length} cities
           </p>
         </div>
         <div className="head-actions">
@@ -124,13 +129,13 @@ export function ItineraryViewPage() {
               <li key={day.date}>
                 <div className="day-head">
                   <span className="stop-index">DAY {String(index + 1).padStart(2, '0')}</span>
-                  <h3>{formatDay(day.date)}</h3>
+                  <h3>{formatDay(`${day.date}T12:00:00Z`, day.timezone)}</h3>
                   <span className="day-city">{day.stopName}</span>
                 </div>
                 <ul className="day-items">
                   {day.items.map((item) => (
                     <li key={item.id}>
-                      <span className="item-time">{formatTime(item.starts_at)}</span>
+                      <span className="item-time">{formatTime(item.starts_at!, day.timezone)}</span>
                       <span className={`kind-tag is-${item.kind}`}>{KIND_LABELS[item.kind]}</span>
                       <span className="item-title">
                         <strong>{item.title}</strong>
@@ -138,7 +143,7 @@ export function ItineraryViewPage() {
                         {item.notes && <small className="item-note">{item.notes}</small>}
                       </span>
                       <span className="item-cost">
-                        {item.estimated_cost > 0 ? formatMoney(item.estimated_cost, trip.currency_code) : 'Free'}
+                        {item.estimated_cost === null ? 'Cost unset' : item.estimated_cost > 0 ? formatMoney(item.estimated_cost, trip.currency_code) : 'Free'}
                       </span>
                     </li>
                   ))}

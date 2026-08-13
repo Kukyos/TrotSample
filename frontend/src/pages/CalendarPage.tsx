@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { trips } from '../fixtures/trips'
+import { useQuery } from '@tanstack/react-query'
+import { listTrips } from '../services/trips'
 import { rampStep } from '../lib/ramp'
 import { formatDateRange } from '../lib/trip'
 
@@ -21,15 +22,15 @@ const iso = (date: Date) =>
 
 export function CalendarPage() {
   const today = new Date()
-  // Opens on the month holding the fullest trip so the grid is never empty on
-  // first paint. Becomes "the current month" once the data is real.
-  const [cursor, setCursor] = useState(new Date(2026, 8, 1))
+  const [cursor, setCursor] = useState(new Date(today.getFullYear(), today.getMonth(), 1))
+  const tripsQuery = useQuery({ queryKey: ['trips'], queryFn: listTrips })
+  const trips = useMemo(() => tripsQuery.data ?? [], [tripsQuery.data])
 
   // Colour is assigned per trip by a stable index so a trip keeps its shade
   // when the month changes — colour follows the entity, never its rank.
   const tripColour = useMemo(
     () => new Map(trips.map((trip, index) => [trip.id, rampStep(index % 5)])),
-    [],
+    [trips],
   )
 
   const cells = monthMatrix(cursor.getFullYear(), cursor.getMonth())
@@ -62,6 +63,8 @@ export function CalendarPage() {
           <button type="button" className="icon-button" onClick={() => shiftMonth(1)} aria-label="Next month">&#8594;</button>
         </div>
       </header>
+
+      {tripsQuery.isError && <p className="auth-message is-error" role="alert">{tripsQuery.error.message}</p>}
 
       <div className="calendar-grid" role="grid" aria-label={`Trips in ${monthLabel}`}>
         {WEEKDAYS.map((day) => (

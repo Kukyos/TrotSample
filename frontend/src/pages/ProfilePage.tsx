@@ -1,8 +1,9 @@
-import { useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../auth/auth-context'
-import { trips } from '../fixtures/trips'
-import { cities } from '../fixtures/catalog'
+import { getPopularCities } from '../services/catalog'
+import { listTrips } from '../services/trips'
 import { formatDateRange, formatMoney, tripBudget, tripCityNames, tripPhase } from '../lib/trip'
 import { StatTile } from '../components/ui/charts'
 
@@ -16,10 +17,14 @@ export function ProfilePage() {
   const [language, setLanguage] = useState('en')
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
+  const tripsQuery = useQuery({ queryKey: ['trips'], queryFn: listTrips })
+  const citiesQuery = useQuery({ queryKey: ['cities', 'profile'], queryFn: () => getPopularCities(50) })
+  const trips = useMemo(() => tripsQuery.data ?? [], [tripsQuery.data])
+  const cities = citiesQuery.data ?? []
 
   const planned = trips.filter((trip) => tripPhase(trip) !== 'completed')
   const previous = trips.filter((trip) => tripPhase(trip) === 'completed')
-  const countries = new Set(trips.flatMap((trip) => tripCityNames(trip.id)))
+  const countries = new Set(trips.flatMap((trip) => trip.trip_stops.map((stop) => stop.city.country_code)))
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -151,7 +156,7 @@ export function ProfilePage() {
                     <Link to={`/trips/${trip.id}`}>
                       <strong>{trip.title}</strong>
                       <small>{formatDateRange(trip.start_date, trip.end_date)}</small>
-                      <span>{tripCityNames(trip.id).length} cities</span>
+                      <span>{tripCityNames(trip).length} cities</span>
                     </Link>
                   </li>
                 ))}
