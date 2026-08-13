@@ -22,6 +22,7 @@ Owner: Armaan
 Owner: Praneet
 
 - [ ] Document tables, relationships, and RLS policies in `docs/SCHEMA.md`.
+- [x] Create and deploy the `profiles` table migration with Auth linkage and RLS.
 - [ ] Create Supabase migrations and seed data in `backend/supabase/`.
 - [ ] Generate `frontend/src/types/database.ts` from the live schema.
 - [ ] Document the frontend contract in `docs/SERVICES.md`.
