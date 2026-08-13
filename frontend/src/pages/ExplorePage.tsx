@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { activities, cities, cityById } from '../fixtures/catalog'
 import { formatMoney } from '../lib/trip'
 
@@ -126,7 +126,10 @@ export function ExplorePage() {
                 <span className="city-meta">
                   {city.region} · cost index {city.cost_index?.toFixed(1) ?? '—'}
                 </span>
-                <button type="button" className="ghost-button">Add to a trip</button>
+                {/* ponytail: routes to the trip picker until an add-stop service exists */}
+                <Link className="ghost-button" to="/trips">
+                  Add to a trip
+                </Link>
               </article>
             </li>
           ))}
@@ -150,7 +153,7 @@ export function ExplorePage() {
                       ? formatMoney(activity.estimated_cost, activity.currency_code)
                       : 'Free'}
                   </strong>
-                  <button type="button" className="ghost-button">Add to a trip</button>
+                  <Link className="ghost-button" to="/trips">Add to a trip</Link>
                 </div>
               </article>
             </li>

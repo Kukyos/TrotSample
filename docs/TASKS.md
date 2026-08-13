@@ -77,9 +77,22 @@ Decisions locked with Armaan before implementation:
 - [x] Verify lint, production build, mobile, keyboard, and reduced motion.
 - [ ] **Blocked on Praneet:** the ten screens sit behind `ProtectedRoute`, so they
   cannot be opened locally until Supabase env values exist and a session can be
-  created. `npm run smoke` renders every route meanwhile.
+  created. Until then `npm run smoke` renders every route and writes static
+  previews to `dist/preview/` for review.
 - [ ] Replace each `fixtures/` import with a documented service function once
   trip, city, and activity services are added to `docs/SERVICES.md`.
+
+Known gaps, deliberate:
+
+- `/admin` has no role check, so it is kept out of the primary navigation and is
+  reachable only from the profile page. Gate it on Auth `app_metadata` before it
+  is exposed anywhere else.
+- "Add to a trip" on `/explore` routes to the trip list rather than adding a stop;
+  adding one needs a service function that does not exist yet.
+- Create-trip and profile forms validate but do not persist.
+- The builder seeds its state once per mount, so it will not resync if `:tripId`
+  changes without unmounting. Not reachable today; revisit if a trip switcher is
+  added inside the builder.
 
 ## Integration gate
 

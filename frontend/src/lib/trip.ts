@@ -112,11 +112,17 @@ export function formatDateRange(start: string, end: string) {
   return sameMonth ? `${day.format(from)}–${full.format(to)}` : `${dayMonth.format(from)} – ${full.format(to)}`
 }
 
+// Itinerary times are authored in UTC and must render as authored — formatting
+// in the viewer's local zone would shift 09:00 to 14:30 in Asia/Kolkata and slide
+// day headers across midnight in negative-offset zones. Trip-level dates go
+// through atMidnight instead, which is local-consistent on both ends.
+
 export function formatDay(value: string) {
   return new Intl.DateTimeFormat('en-GB', {
     weekday: 'short',
     day: '2-digit',
     month: 'short',
+    timeZone: 'UTC',
   }).format(new Date(value))
 }
 
@@ -125,5 +131,6 @@ export function formatTime(value: string) {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
+    timeZone: 'UTC',
   }).format(new Date(value))
 }

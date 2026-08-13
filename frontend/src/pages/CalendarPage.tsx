@@ -21,7 +21,9 @@ const iso = (date: Date) =>
 
 export function CalendarPage() {
   const today = new Date()
-  const [cursor, setCursor] = useState(new Date(2026, 4, 1))
+  // Opens on the month holding the fullest trip so the grid is never empty on
+  // first paint. Becomes "the current month" once the data is real.
+  const [cursor, setCursor] = useState(new Date(2026, 8, 1))
 
   // Colour is assigned per trip by a stable index so a trip keeps its shade
   // when the month changes — colour follows the entity, never its rank.

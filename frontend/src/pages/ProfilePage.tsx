@@ -109,6 +109,12 @@ export function ProfilePage() {
           {saved && <p className="auth-message is-success" role="status">Details validated. Saving arrives with the profile service.</p>}
 
           <button className="auth-submit" type="submit">Save changes →</button>
+
+          <p className="muted-copy">
+            {/* Admin has no role check yet, so it stays out of the primary nav and
+                is reachable only from here. Gate on Auth app_metadata before launch. */}
+            Staff only: <Link className="text-link" to="/admin">open the admin panel</Link>
+          </p>
         </form>
 
         <div className="profile-trips">

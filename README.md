@@ -25,9 +25,20 @@ npm run build
 npm run smoke
 ```
 
-`npm run smoke` renders every route to a string and fails if any screen throws or
-if the auth guard lets an anonymous visitor through. It is the only way to verify
-the authenticated screens before Supabase credentials are available.
+`npm run smoke` renders every route and fails if a screen throws, if expected
+content is missing, or if the auth guard lets an anonymous visitor through. It
+also writes static previews of every screen to `dist/preview/`:
+
+```powershell
+cd frontend
+npm run build
+npm run smoke
+npm run preview   # then open /preview/ in the browser
+```
+
+The previews are how the authenticated screens can be reviewed before Supabase
+credentials exist. They are real markup and real styling, but nothing is
+interactive.
 
 ## Deployment
 
