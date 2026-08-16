@@ -166,6 +166,7 @@ Written in the **first commit**, once the real problem statement is known:
 | `docs/SERVICES.md` | every function the frontend may call. The backend/frontend contract |
 | `docs/TASKS.md` | tiered task list, claim-by-name, ticked in the same push as the work |
 | `docs/AUTH.md` | landing/login session-state and routing contract |
+| `README.md` | starts as a working setup reference; rewritten as the showcase in Phase 5 (see §8) |
 
 Every builder's local agent instructions must preserve this load-bearing rule:
 **if it's not in SCHEMA or SERVICES, stop and ask — do not invent a column or a
@@ -298,8 +299,31 @@ rehearsing.
 pass. Design consistency sweep across everyone's pages — Armaan owns this.
 
 **Phase 5 — Demo readiness.** Realistic seeded data, never "Trip 1" or lorem.
-Zero console errors. Fresh-browser test of the production link. README with
-setup, screenshots, architecture note.
+Zero console errors. Fresh-browser test of the production link. **Showcase
+README** — see below.
+
+### The README is a deliverable, not a setup guide
+
+The README in this practice repo is a working reference: setup commands, checks,
+current build state. That is right for a dry run and wrong for the real event.
+On the day it is the first thing a judge opens, often before the live link, so
+it gets built as a showcase:
+
+- Project name, one-line pitch, and the **live link** at the very top
+- A hero screenshot immediately after — the strongest screen, full width
+- Feature highlights, each with its own screenshot or short GIF
+- Tech stack, stated plainly (React · TypeScript · Vite · Supabase · Vercel)
+- A short architecture note — the `services/` boundary is the interesting part
+  and is worth one diagram or one paragraph
+- **Team roles table** — who owns what, by name
+- Local setup and env vars moved to the *bottom*, or inside a collapsed
+  `<details>` block. A judge does not need them; they should not be the opening.
+
+Two practical notes. **Budget real time for it** — capturing good screenshots
+means the app must be seeded and finished first, so this cannot be the last
+fifteen minutes. And **screenshots of animated UI need a human at a visible
+browser**; automated capture of a backgrounded tab freezes mid-animation, which
+Run 1 learned the hard way.
 
 **Definition of done for a page:** uses services (no direct Supabase), uses UI
 primitives (no ad-hoc styling), matches `docs/DESIGN.md` checked in a real
@@ -376,7 +400,75 @@ Run 2; it is still the number that matters most.
 
 ---
 
-## 11. Still open
+## 11. Run 2 pipeline — three stages
+
+Agreed after Run 1. The order matters: each stage produces the thing the next
+stage depends on.
+
+### Stage 1 — Codex sets the look and the backend (initial commits)
+
+GPT-5.6 via Codex writes the first commit: **landing page and login page only**,
+sharing one colour scheme. Iterate on these two until the palette and visuals
+are genuinely good, because everything after inherits them. Praneet's Supabase
+work runs in parallel through this stage.
+
+Why these two screens first: they are the only screens that exist before auth,
+they establish every token the rest of the app reuses, and Run 1 proved the
+type and colour system is the cheapest, highest-leverage visual work there is.
+Wire the real fonts here — not in polish.
+
+**Exit criteria:** landing and login look right on a real browser, tokens are in
+`docs/DESIGN.md` *and* loaded in the app, Supabase schema and RLS are up, types
+generated, seed data in.
+
+### Stage 2 — Claude builds the remaining pages in one pass
+
+All remaining screens built against the tokens and services from Stage 1. Run 1
+showed this part is fast; the constraint is review, not generation.
+
+**Build it page by page, not as one drop.** One page per commit, each with its
+services wiring, loading, empty, and error states. That is better history and
+better review regardless of who commits it, and it means a broken page is one
+revert rather than an unpicking job.
+
+### Stage 3 — Four-way refinement
+
+Everyone takes components, fixes, and features as they please, in their own
+lane, for the remaining time. This is where the distinct commit history
+genuinely comes from — four people, real changes, real timestamps.
+
+---
+
+## 12. Commit history across four builders
+
+The goal is a history that shows four people working, rather than one giant
+commit. The way to get it is to actually distribute the work, which costs almost
+nothing given everyone is present:
+
+- Stage 2 produces **one commit per page** on a branch, unpushed.
+- Each builder pulls that branch on their own machine and takes 2–3 pages:
+  reads them, fixes what they do not like, and commits and pushes those under
+  **their own git identity**. Review and revision are real work, and this is
+  real authorship of it.
+- Stage 3 then adds each person's own features on top.
+
+Across an hour that yields fifteen-plus commits from four authors with honest
+timestamps — the same shape as the intended outcome, with nothing invented.
+
+**What we do not do:** set `--author` to a teammate who did not write the
+commit, or backdate with `GIT_AUTHOR_DATE`. Beyond the honesty problem, GitHub
+records author and committer separately and shows contributor activity, so
+commits attributed to someone whose account never pushed are visible to anyone
+who looks — a worse outcome than a lopsided but true history.
+
+**No AI attribution in commit messages.** No `Co-Authored-By:` naming an
+assistant, no session trailers, no "generated with" lines. This is written into
+each builder's local `CLAUDE.md` / `AGENTS.md` under Build discipline, because
+some tools add those trailers by default.
+
+---
+
+## 13. Still open
 
 - Page split between Pooja and Athira — they decide when building, and update
   the task doc with it.
