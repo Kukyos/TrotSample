@@ -34,7 +34,10 @@ export function Spotlight({ children, className = '' }: { children: ReactNode; c
   )
 }
 
-/* The React Bits Aurora background was tried here and removed. Its WebGL canvas
-   over the hero's photo, gradients, grain, and backdrop-filter layers dropped
-   the page to single-digit frames and stalled GSAP mid-tween. The hero already
-   carries a photograph; if an aurora is wanted, it belongs on a flat screen. */
+/* The React Bits Aurora background was tried in the hero and removed, on the
+   belief that its WebGL canvas was stalling the compositor. That was wrong: the
+   frozen frames were an automated browser tab running in the background, where
+   Chrome suspends requestAnimationFrame entirely. Aurora was never shown to be
+   slow. To restore it: `npm i ogl`, copy Aurora.tsx/.css from
+   github.com/DavidHDev/react-bits (src/ts-default/Backgrounds/Aurora), and
+   export a HeroAurora wrapper here guarded by prefersReducedMotion(). */
