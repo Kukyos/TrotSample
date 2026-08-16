@@ -22,7 +22,7 @@ finishing fast.
 **Split is horizontal.** One person owns the whole data layer; the rest own
 pages. Pages rarely collide, the data layer would collide constantly.
 
-**Run 1 is just Armaan + Praneet.** Armaan owns the landing redesign and integration. Praneet owns Supabase, the auth provider, and the login page. Pooja and Athira join from Run 2 and claim their own pages in the task doc — first to claim owns it.
+**Run 1 is complete** (see the retro in §10). It was just Armaan + Praneet. Armaan owns the landing redesign and integration. Praneet owns Supabase, the auth provider, and the login page. Pooja and Athira join from Run 2 and claim their own pages in the task doc — first to claim owns it.
 
 **Core rule:** nobody edits outside their ownership lane without asking. This
 is the entire reason four AI sessions can share one repo.
@@ -201,6 +201,50 @@ Lessons from the screen build:
   `ProtectedRoute` is invisible until credentials exist. A render smoke check that
   walks every route catches crashes in the meantime and costs one file.
 
+Lessons from the visual pass and the first real integration:
+
+- **A doc that describes the app is not the app.** `docs/DESIGN.md` named the
+  type stack from the first commit. Nobody ever loaded the fonts, so every
+  screen rendered in Arial and Times while four people read a document saying
+  otherwise, and the build "looked cheap" for reasons no one could name. Any doc
+  that describes an *artifact* needs a task that verifies the artifact matches it.
+  Cheapest version: one line in the definition of done — "matches DESIGN.md,
+  checked in a browser."
+- **Scope every descendant selector in shared CSS.** `.hero h1 span { display:
+  block }` was harmless for a year and then stacked a third-party component's
+  generated spans one word per line. With one stylesheet and four people adding
+  components that inject DOM, write `>` by default and reach for a descendant
+  selector deliberately.
+- **A negative assertion must be paired with a positive one.** The smoke test
+  proved the auth guard worked by checking the HTML did *not* contain
+  `app-dock`. When `app-dock` was deleted the check passed vacuously and would
+  have passed forever, guarding nothing. Every "this must be absent" test needs
+  a sibling "this is present when it should be" test, or it silently retires.
+- **A harness that stubs a terminal state cannot catch transition bugs.**
+  `uitest.tsx` pins `status: 'authenticated'` from the first render. A reveal
+  hook keyed only on `pathname` observed the DOM before the gated screens
+  mounted and left their content permanently invisible on the real
+  loading → authenticated flip — and the harness was structurally blind to it.
+  Exercise the transitions, not just the end states.
+- **Moving pages from fixtures to services is a repo-wide event.** One commit
+  moved every page to react-query, which is correct and was the plan — but it
+  landed while another lane had in-flight work on the same pages. Announce it,
+  and either freeze page work for the window or migrate page by page.
+- **Never conclude "slow" from an automated browser.** A backgrounded tab gets
+  zero `requestAnimationFrame` callbacks, so every JS-driven animation freezes
+  mid-tween and screenshots capture the frozen state. That artefact was read as
+  a rendering performance problem twice, and a working component was deleted
+  over it. Check `document.visibilityState` before trusting any timing
+  measurement, and have a human look at motion — it cannot be reviewed from a
+  screenshot.
+- **Animation libraries cost real bytes.** React Bits pulled in GSAP and
+  `motion` and took the bundle from ~374 kB to ~678 kB (gzip 111 → 218 kB).
+  Worth it or not, decide before adopting, not after.
+- **Vendored third-party source gets its own directory and a lint exclusion.**
+  `src/components/reactbits/` is kept exactly as shipped so it can be re-pulled
+  from upstream; linting it against house rules only creates pressure to edit
+  files we do not own.
+
 The schema is also a living contract. Design it step by step, starting with the
 smallest structure required by the active feature. Update `docs/SCHEMA.md`, the
 migrations, generated types, and affected service documentation together as the
@@ -233,7 +277,9 @@ thirteen hollow ones — but only if the six include something beyond CRUD.
 **Phase 0 — Foundation.** No feature work until this is green. Repo + docs,
 `vercel.json`, Supabase project, schema, RLS tested, types generated, seed data,
 dev account with a populated demo record, Vite scaffold, router, auth shell,
-design tokens, UI primitives. **Deployed — live link exists before any feature.**
+design tokens, UI primitives, **and the fonts actually loaded and verified on
+screen** — Run 1 shipped an entire build in fallback Arial because that step was
+documented but never done. **Deployed — live link exists before any feature.**
 
 **Current Run 1 exception:** landing design and login/auth are being built in parallel. The boundary is `docs/AUTH.md`: Armaan does not edit `/login` or auth services; Praneet does not replace the landing composition.
 
@@ -256,8 +302,9 @@ Zero console errors. Fresh-browser test of the production link. README with
 setup, screenshots, architecture note.
 
 **Definition of done for a page:** uses services (no direct Supabase), uses UI
-primitives (no ad-hoc styling), has loading + empty + error states, works at
-mobile width, zero console errors, preview URL works, tasks ticked.
+primitives (no ad-hoc styling), matches `docs/DESIGN.md` checked in a real
+browser, has loading + empty + error states, works at mobile width, zero console
+errors, preview URL works, tasks ticked.
 
 ---
 
@@ -275,19 +322,57 @@ against the dev account before moving on.
 **Long-lived branches.** Pull from `main` every time one of your branches gets
 merged. Otherwise you hit a two-hour conflict at the worst moment.
 
+**Shared files are the real collision surface — not pages.** The horizontal
+split works: two lanes touched almost no common page code. Every conflict in Run
+1 landed in a file nobody owns. Assign an owner to each before Run 2:
+
+| file | why it collides |
+|---|---|
+| `frontend/package.json` + lock | two people adding dependencies in the same window |
+| `frontend/src/styles.css` | one stylesheet, every builder adding to it |
+| `frontend/smoke.tsx` | every new or moved route touches it |
+| `frontend/src/router.tsx` | already Armaan's; keep it that way |
+| `docs/TASKS.md` | everyone, every commit — append-only sections per lane help |
+
+**Deleting or moving a file needs an announcement, not just a commit.** The one
+merge conflict git could not resolve was a page deleted in one lane and
+rewritten in another on the same day. Both changes were correct; only the
+sequencing was wrong. Say it in the task doc before doing it.
+
 ---
 
-## 10. Retro — fill in after Run 1
+## 10. Retro — Run 1 (Armaan + Praneet, no clock)
 
-The actual deliverable of a no-clock practice run. Be blunt.
+**Did the services contract hold?** Yes, and it is the single thing that made
+the integration survivable. Because pages only ever called `services/`, swapping
+fixtures for real Supabase queries was mechanical rather than a rewrite. Nobody
+reached around the layer. Keep this rule exactly as written.
 
-- How long did Phase 0 really take? (This is the number that matters — in a real
-  8-hour phase, that's the budget you're working against.)
-- What blocked us longest?
-- Where did AI sessions produce incompatible code?
-- Did the services contract hold, or did people reach around it?
-- Did Codex sharing hit limits?
-- What would we cut if this were 8 hours?
+**Where did the AI sessions produce incompatible code?** Only in unowned files —
+`package.json`, `smoke.tsx`, and one page deleted in one lane while being
+rewritten in the other. Zero conflicts inside either person's actual lane. The
+horizontal split works; it is the shared files that need owners (see §9).
+
+**What blocked longest?** Verification, not implementation. Building the visual
+pass was fast. Establishing whether it *worked* consumed most of the session:
+animations that turned out to be frozen only because the automation tab was
+backgrounded, a screenshot path that kept timing out, and two wrong diagnoses
+that cost a working component. Budget for verification explicitly, and decide up
+front which things only a human can check.
+
+**What we would cut at 8 hours.** The React Bits integration — it is a polish
+item that added a dependency, a bundle cost, and a class of layout bug, and it
+landed after the product already worked. Fonts and the single shared header were
+almost free and did most of the visual work; those are Phase 0 items, not Phase
+4 ones. Wire the type stack in the first commit.
+
+**What to keep.** The smoke test paid for itself repeatedly — SSR-rendering all
+fourteen routes catches crashes, and it caught the route restructure
+immediately. The "no push until integration approves" rule meant an unexpected
+merge to `main` cost nothing: the work sat on a branch and merged cleanly.
+
+**Phase 0 duration:** not measured this run — no clock was kept. Measure it in
+Run 2; it is still the number that matters most.
 
 ---
 
@@ -295,6 +380,10 @@ The actual deliverable of a no-clock practice run. Be blunt.
 
 - Page split between Pooja and Athira — they decide when building, and update
   the task doc with it.
-- Whether Run 2 adds a clock.
+- Whether Run 2 adds a clock. Recommended: yes, at least for Phase 0, since
+  that duration is the one thing Run 1 failed to produce.
+- Owners for the shared files listed in §9, agreed before Run 2 starts.
+- Whether the React Bits dependency stays. It is currently on
+  `design/visual-pass`, unmerged.
 - Whether Jonathan (manual coder, for judge defensibility) is on this team for
   the real event — he was in the earlier plan but isn't in the current roster.
